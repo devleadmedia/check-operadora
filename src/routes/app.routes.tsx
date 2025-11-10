@@ -11,8 +11,11 @@ import { SupportPage } from "@/pages/app/support";
 import { StatementPage } from "@/pages/app/statement/statementPage";
 import { role } from "@/utils/data-user";
 import { Roles } from "@/enums/Roles.enum";
+import { useCredits } from "@/hooks/use-credits";
 
 export function AppRoutes() {
+  useCredits();
+
   return (
     <div className="flex flex-col">
       <Header />

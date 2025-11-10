@@ -97,4 +97,14 @@ export class User {
       console.log(err);
     }
   }
+
+  async getCreditsByToken(): Promise<number>{
+    try {
+      const { data } = await api.get(`/api/extrato/creditos`);
+      return data?.credit / 100;
+    } catch (err) {
+      console.log(err);
+      return 0
+    }
+  }
 }
