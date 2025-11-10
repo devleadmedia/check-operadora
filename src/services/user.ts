@@ -65,7 +65,7 @@ export class User {
     try {
       await api.post('/api/users/credits',{
         user_id: userId,
-        amount,
+        amount: amount * 100,
         description
       });
     } catch (err) {
