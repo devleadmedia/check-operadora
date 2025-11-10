@@ -310,7 +310,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Upload size={16} className="stroke-green-500" />
+                        <Upload size={16} className="stroke-[#8ac850]" />
                         <span className="text-sm">11</span>
                       </div>
                     </TooltipTrigger>
@@ -324,7 +324,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Loader2 size={16} className="stroke-green-500" />
+                        <Loader2 size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">14</span>
                       </div>
                     </TooltipTrigger>
@@ -338,7 +338,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <FileText size={16} className="stroke-green-500" />
+                        <FileText size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">142</span>
                       </div>
                     </TooltipTrigger>
@@ -352,7 +352,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <CheckCircle size={16} className="stroke-green-500" />
+                        <CheckCircle size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">22</span>
                       </div>
                     </TooltipTrigger>
@@ -380,7 +380,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Phone size={16} className="stroke-green-500" />
+                        <Phone size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">92</span>
                       </div>
                     </TooltipTrigger>
@@ -394,7 +394,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Smartphone size={16} className="stroke-green-500" />
+                        <Smartphone size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">10</span>
                       </div>
                     </TooltipTrigger>
@@ -408,7 +408,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <ArrowDownUp size={16} className="stroke-green-500" />
+                        <ArrowDownUp size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">162</span>
                       </div>
                     </TooltipTrigger>
@@ -436,7 +436,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Building2 size={16} className="stroke-green-500" />
+                        <Building2 size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">162</span>
                       </div>
                     </TooltipTrigger>
@@ -450,7 +450,7 @@ export function DataTableApi({ data }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Globe size={16} className="stroke-green-500" />
+                        <Globe size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">162</span>
                       </div>
                     </TooltipTrigger>

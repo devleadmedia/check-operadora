@@ -1,6 +1,5 @@
 import {
   ArrowDownUp,
-  Building2,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
@@ -15,6 +14,7 @@ import {
   Smartphone,
   Upload,
   XCircle,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +60,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 
 import { Separator } from "@/components/ui/separator";
@@ -68,18 +68,40 @@ import { formatPhoneNumber } from "@/utils/format-number";
 
 import iconBrasil from "@/assets/icon-brasil.svg";
 import { SheetRow } from "@/hooks/use-download-sheet";
-import { StatsFromAPI } from "./statistics";
+import { Statistics, StatsFromAPI } from "./statistics";
 
 interface INameFileDataProps {
   data: SheetRow[];
   stats?: StatsFromAPI | object | null;
+  fileName: string;
 }
 
-export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
+export function NameFileDataTableRow({
+  fileName,
+  data,
+  stats,
+}: INameFileDataProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  // Extrair listas únicas para os selects
+  const filterOptions = useMemo(() => {
+    const ddds = Array.from(new Set(data.map(row => row.ddd).filter(Boolean))).sort();
+    const ufs = Array.from(new Set(data.map(row => row.uf).filter(Boolean))).sort();
+    const municipalities = Array.from(new Set(data.map(row => row.municipalityRegion).filter(Boolean))).sort();
+    const operatorsOrigem = Array.from(new Set(data.map(row => row.operatorOrigem).filter(Boolean))).sort();
+    const operatorsNow = Array.from(new Set(data.map(row => row.operatorNow).filter(Boolean))).sort();
+    
+    return {
+      ddds,
+      ufs,
+      municipalities,
+      operatorsOrigem,
+      operatorsNow,
+    };
+  }, [data]);
 
   const getStatValue = (key: keyof StatsFromAPI): number => {
     if (!stats || typeof stats !== "object") return 0;
@@ -107,6 +129,12 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
     }
     return 0;
   };
+
+  const clearAllFilters = () => {
+    table.resetColumnFilters();
+  };
+
+  const hasActiveFilters = columnFilters.length > 0;
 
   const downloadCSV = () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -265,8 +293,6 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
       accessorKey: "portate",
       header: "Portado",
       cell: ({ row }) => {
-        console.log(row.original);
-
         return (
           <div className="capitalize">
             <p>{row.getValue("portate") ? "Sim" : "Não"}</p>
@@ -277,11 +303,17 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
     {
       accessorKey: "datePortate",
       header: "Data Portabilidade",
-      cell: ({ row }) => (
-        <div className="capitalize">
-          <p>{row.getValue("datePortate") || "Sem data"}</p>
-        </div>
-      ),
+      cell: ({ row }) => {
+        return (
+          <div className="capitalize">
+            <p>
+              {row.original.datePortate === "-"
+                ? "-"
+                : row.original.datePortate}
+            </p>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "municipalityRegion",
@@ -303,6 +335,44 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
               <TooltipContent>
                 {row.original.uf} - {row.getValue("municipalityRegion") || "-"}
               </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "uf",
+      header: () => {
+        return <div className="flex items-center gap-2">UFs</div>;
+      },
+      cell: ({ row }) => (
+        <div className="capitalize">
+          <TooltipProvider delayDuration={0.5}>
+            <Tooltip>
+              <TooltipTrigger>
+                <p>{row.original.uf}</p>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Fidelidade</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "M",
+      header: () => {
+        return <div className="flex items-center gap-2">M</div>;
+      },
+      cell: ({ row }) => (
+        <div className="capitalize">
+          <TooltipProvider delayDuration={0.5}>
+            <Tooltip>
+              <TooltipTrigger>
+                <p>{row.original.M}</p>
+              </TooltipTrigger>
+              <TooltipContent>{row.original.M}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
@@ -363,9 +433,12 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
   return (
     <div>
       <div className="w-full">
-        <div className="w-full flex flex-col items-start justify-between gap-2 pb-1">
-          <div className="w-full flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
+        <div className="w-full flex flex-col items-start justify-between gap-4 pb-1">
+          {/* Filtros Avançados */}
+          <div className="w-full flex flex-wrap items-end gap-3 p-4 rounded-lg">
+            {/* Filtro Número */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium">Número</Label>
               <Input
                 placeholder="Filtrar por número..."
                 value={
@@ -374,14 +447,223 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                 onChange={(event) =>
                   table.getColumn("number")?.setFilterValue(event.target.value)
                 }
-                className="w-[200px]"
+                className="w-max max-w-max"
               />
+            </div>
+
+            {/* Filtro Anatel */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">Anatel</Label>
+              <Select
+                value={
+                  (table.getColumn("anatel")?.getFilterValue() as string) ?? "all"
+                }
+                onValueChange={(value) =>
+                  table.getColumn("anatel")?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="w-max max-w-max">
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="válido">Válido</SelectItem>
+                  <SelectItem value="inválido">Inválido</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro DDD */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">DDD</Label>
+              <Select
+                value={
+                  (table.getColumn("ddd")?.getFilterValue() as string) ?? "all"
+                }
+                onValueChange={(value) =>
+                  table.getColumn("ddd")?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="w-max max-w-max">
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {filterOptions.ddds.map((ddd) => (
+                    <SelectItem key={ddd} value={ddd}>
+                      {ddd}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro UF */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">UF</Label>
+              <Select
+                value={
+                  (table.getColumn("uf")?.getFilterValue() as string) ?? "all"
+                }
+                onValueChange={(value) =>
+                  table.getColumn("uf")?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="w-max max-w-max">
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {filterOptions.ufs.map((uf) => (
+                    <SelectItem key={uf} value={uf}>
+                      {uf}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro Município */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">Município</Label>
+              <Select
+                value={
+                  (table.getColumn("municipalityRegion")?.getFilterValue() as string) ?? "all"
+                }
+                onValueChange={(value) =>
+                  table.getColumn("municipalityRegion")?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="w-max max-w-max">
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {filterOptions.municipalities.map((municipality) => (
+                    <SelectItem key={municipality} value={municipality}>
+                      {municipality}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro M (mínimo) */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">M (mínimo)</Label>
+              <Input
+                type="number"
+                placeholder="Valor mínimo..."
+                value={
+                  (table.getColumn("M")?.getFilterValue() as string) ?? ""
+                }
+                onChange={(event) =>
+                  table.getColumn("M")?.setFilterValue(event.target.value)
+                }
+                className="w-max max-w-max"
+              />
+            </div>
+
+            {/* Filtro Data - De */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">Data - De</Label>
+              <Input
+                type="date"
+                value={
+                  (table.getColumn("datePortate")?.getFilterValue() as string) ?? ""
+                }
+                onChange={(event) =>
+                  table.getColumn("datePortate")?.setFilterValue(event.target.value)
+                }
+                className="w-max max-w-max"
+              />
+            </div>
+
+            {/* Filtro Data - Até */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">Data - Até</Label>
+              <Input
+                type="date"
+                className="w-max max-w-max"
+                placeholder="Data final..."
+              />
+            </div>
+
+            {/* Filtro Operadora Origem */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">Operadora Origem</Label>
+              <Select
+                value={
+                  (table.getColumn("operatorOrigem")?.getFilterValue() as string) ?? "all"
+                }
+                onValueChange={(value) =>
+                  table.getColumn("operatorOrigem")?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="w-max max-w-max">
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {filterOptions.operatorsOrigem.map((operator) => (
+                    <SelectItem key={operator} value={operator}>
+                      {operator}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro Operadora Atual */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs font-medium ">Op. Atual</Label>
+              <Select
+                value={
+                  (table.getColumn("operatorNow")?.getFilterValue() as string) ?? "all"
+                }
+                onValueChange={(value) =>
+                  table.getColumn("operatorNow")?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="w-max max-w-max">
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {filterOptions.operatorsNow.map((operator) => (
+                    <SelectItem key={operator} value={operator}>
+                      {operator}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Botão Limpar Filtros */}
+            {hasActiveFilters && (
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs font-medium text-transparent">.</Label>
+                <Button
+                  variant="outline"
+                  size="default"
+                  onClick={clearAllFilters}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <X size={16} />
+                  Limpar Filtros
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="w-full flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               <div className="flex h-5 items-center gap-2">
                 <TooltipProvider delayDuration={0.5}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Upload size={16} className="stroke-green-500" />
+                        <Upload size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">OK</span>
                       </div>
                     </TooltipTrigger>
@@ -396,7 +678,7 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <FileText size={16} className="stroke-green-500" />
+                        <FileText size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">
                           {formatNumberValues(getStatValue("total"))}
                         </span>
@@ -413,7 +695,7 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <CheckCircle size={16} className="stroke-green-500" />
+                        <CheckCircle size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">
                           {formatNumberValues(getStatValue("valid"))}
                         </span>
@@ -447,7 +729,7 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Phone size={16} className="stroke-green-500" />
+                        <Phone size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">
                           {formatNumberValues(getStatValue("fixo"))}
                         </span>
@@ -464,7 +746,7 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Smartphone size={16} className="stroke-green-500" />
+                        <Smartphone size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">
                           {formatNumberValues(getStatValue("movel"))}
                         </span>
@@ -481,7 +763,7 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <ArrowDownUp size={16} className="stroke-green-500" />
+                        <ArrowDownUp size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">
                           {formatNumberValues(getStatValue("portado"))}
                         </span>
@@ -515,24 +797,7 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-pointer">
-                        <Building2 size={16} className="stroke-green-500" />
-                        <span className="text-xs">
-                          {formatNumberValues(getStatValue("city"))}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Cidades</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <Separator orientation="vertical" />
-
-                <TooltipProvider delayDuration={0.5}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2 cursor-pointer">
-                        <Globe size={16} className="stroke-green-500" />
+                        <Globe size={16} className="stroke-[#8ac850]" />
                         <span className="text-xs">{getDDDCount()}</span>
                       </div>
                     </TooltipTrigger>
@@ -544,10 +809,14 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Statistics
+                stats={stats ? (stats as StatsFromAPI) : undefined}
+                fileName={fileName}
+              />
               <Button
                 type="button"
                 variant={"outline"}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-[#8ac850] hover:bg-[#5e8e33] dark:bg-[#8ac850] dark:hover:bg-[#5e8e33]"
                 onClick={downloadCSV}
                 disabled={table.getFilteredSelectedRowModel().rows.length === 0}
               >
@@ -674,7 +943,7 @@ export function NameFileDataTableRow({ data, stats }: INameFileDataProps) {
                   />
                 </SelectTrigger>
                 <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                  {[10, 25, 50, 75, 100].map((pageSize) => (
                     <SelectItem key={pageSize} value={`${pageSize}`}>
                       {pageSize}
                     </SelectItem>

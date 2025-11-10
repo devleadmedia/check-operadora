@@ -22,7 +22,6 @@ export function useFileUpload() {
       toast.success("Arquivo enviado com sucesso!");
       // Invalidar a query para atualizar a lista
       queryClient.invalidateQueries({ queryKey: ["get-checker"] });
-      queryClient.invalidateQueries({ queryKey: ["credits"] });
     },
     onError: (error: any) => {
       const message = error?.response?.data?.error || "Erro ao enviar arquivo";

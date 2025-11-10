@@ -2,7 +2,7 @@ import { LinksHeader } from "./components/links";
 import { Profile } from "@/pages/app/profile";
 import Logo from "@/assets/checkoperadora.png";
 import { useHeaderController } from "./controller";
-import { Bell, Loader2, Server } from "lucide-react";
+import { Bell, Headset, Loader2, Server } from "lucide-react";
 import { useSignInController } from "@/pages/auth/sign-in/controller";
 import { Button } from "../ui/button";
 import {
@@ -13,9 +13,6 @@ import {
 } from "../ui/tooltip";
 import { usePageNavigation } from "@/hooks/use-pages-navigation";
 import { NavigationHoverCard } from "./components/navigation-hover-card";
-import { Badge } from "../ui/badge";
-import { moneyFormat } from "@/utils/money.util";
-import { useCredits } from "@/hooks/use-credits";
 
 export function Header() {
   const { signInResponse } = useSignInController();
@@ -24,8 +21,7 @@ export function Header() {
   const { user } = userData;
   const { isLoading: isLoadingUser } = signInResponse;
 
-  const { credits } = useCredits()
-  const { navigationLinks, apiSubmenus, isRouteActive } = usePageNavigation(); 
+  const { navigationLinks, apiSubmenus, isRouteActive } = usePageNavigation();
 
   return (
     <header className="bg-card shadow-md fixed w-full z-50">
@@ -93,6 +89,58 @@ export function Header() {
                   </div>
                 );
               })}
+
+              {/* {navigationLinks.map((link) => {
+                const IconComponent = link.icon;
+                const isActive = isRouteActive(link.route, location.pathname);
+
+                return (
+                  <div key={link.route} className="group relative">
+                    <div className="absolute inset-0 bg-white/20 dark:bg-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    <div
+                      onClick={() => navigate(link.route)}
+                      className="relative flex flex-col items-center gap-1 px-2 py-1.5 rounded-lg cursor-pointer"
+                    >
+                      <IconComponent
+                        size={16}
+                        className={`flex-shrink-0 transition-colors duration-200 ${
+                          isActive
+                            ? "text-[#aa71ff]"
+                            : "text-zinc-600 dark:text-zinc-300 group-hover:text-[#aa71ff]"
+                        }`}
+                      />
+                      <LinksHeader
+                        nameLink={link.nameLink}
+                        route={link.route}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+              <NavigationHoverCard items={apiSubmenus}>
+                <div className="group relative">
+                  <div className="absolute inset-0 bg-white/20 dark:bg-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  <div className="relative flex flex-col items-center gap-1 px-2 py-1.5 rounded-lg cursor-pointer">
+                    <Server
+                      size={16}
+                      className={`flex-shrink-0 transition-colors duration-200 ${
+                        isRouteActive("/api", location.pathname)
+                          ? "text-[#aa71ff]"
+                          : "text-zinc-600 dark:text-zinc-300 group-hover:text-[#aa71ff]"
+                      }`}
+                    />
+                    <span
+                      className={`text-[10px] lg:text-xs font-bold whitespace-nowrap transition-colors ${
+                        isRouteActive("/api", location.pathname)
+                          ? "text-[#aa71ff]"
+                          : "text-zinc-700 dark:text-white group-hover:text-[#aa71ff]"
+                      }`}
+                    >
+                      API
+                    </span>
+                  </div>
+                </div>
+              </NavigationHoverCard> */}
             </div>
           </div>
         </div>
@@ -106,11 +154,26 @@ export function Header() {
               </div>
             </>
           ) : (
-            <div className="flex items-center gap-2">
-              <Badge variant="default">{moneyFormat(credits)}</Badge>
-
+            <div className="flex items-center gap-1">
               <Profile userData={user} />
-
+              <TooltipProvider delayDuration={0.5}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={() => navigate("/support")}
+                      type="button"
+                      variant={"ghost"}
+                      size={"icon"}
+                      className="h-12 w-24 dark:hover:bg-white/10"
+                    >
+                      <Headset size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent asChild>
+                    <p>Suporte</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <TooltipProvider delayDuration={0.5}>
                 <Tooltip>
                   <TooltipTrigger asChild>

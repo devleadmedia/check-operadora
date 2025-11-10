@@ -6,7 +6,6 @@ import {
   CreditCard,
   List,
   Landmark,
-  Headset,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,12 +92,9 @@ export function Profile({ userData }: IUserDataProps) {
               <span>Usuários</span>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => navigate("/support")}
-          >
-            <Headset className="mr-2 h-4 w-4" />
-            <span>Suporte</span>
+          <DropdownMenuItem className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Configurações</span>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer">
             <CreditCard className="mr-2 h-4 w-4" />

@@ -280,7 +280,9 @@ export function UploadFile() {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-1">
+        <Button
+          className="flex items-center gap-1 text-white bg-[#8ac850] hover:bg-[#5e8e33] dark:bg-[#8ac850] dark:hover:bg-[#5e8e33]"
+        >
           <Upload size={16} />
           Nova Planilha
         </Button>

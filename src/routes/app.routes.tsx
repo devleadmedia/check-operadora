@@ -11,16 +11,13 @@ import { SupportPage } from "@/pages/app/support";
 import { StatementPage } from "@/pages/app/statement/statementPage";
 import { role } from "@/utils/data-user";
 import { Roles } from "@/enums/Roles.enum";
-import { useCredits } from "@/hooks/use-credits";
 
 export function AppRoutes() {
-  useCredits();
-
   return (
     <div className="flex flex-col">
       <Header />
       {/* caso queria voltar a deixar o footer fixo: overflow-y-auto */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 h-screen">
         <div className="max-w-[95%] mx-auto py-10 px-3 mt-[72px]">
           <Routes>
             <Route index element={<Checker />} />

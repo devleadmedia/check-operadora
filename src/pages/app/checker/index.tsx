@@ -35,13 +35,9 @@ export function Checker() {
 
   const handleViewDetails = async (item: CheckerFile) => {
     reset();
-
     setSelectedItem(item);
     setShowDetails(true);
-
-    if (item.s3_url) {
-      await downloadAndProcessSheet(item.s3_url);
-    }
+    await downloadAndProcessSheet(item.id);
   };
 
   return (
@@ -86,24 +82,40 @@ export function Checker() {
 
       <div className="space-y-4">
         {showDetails ? (
-          <NameFileDataTableRow data={sheetData} stats={selectedItem?.stats} />
+          <NameFileDataTableRow
+            fileName={selectedItem?.original_file_name ?? ""}
+            data={sheetData}
+            stats={selectedItem?.stats}
+          />
         ) : (
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-start gap-1">
-              <h4 className="text-sm">Consulta simples:</h4>
-
+              <h4 className="text-sm font-bold text-[#8ac850]">
+                Consulta simples:
+              </h4>
               <PhoneQuery />
             </div>
             <div className="flex flex-col items-start gap-1">
               <div className="flex flex-col items-start gap-1 mb-6">
                 <div className="flex flex-col items-start gap-1">
-                  <h4 className="text-sm dark:text-neutral-200">
+                  <h4 className="text-sm font-bold text-[#8ac850]">
                     Consulta em massa:
                   </h4>
 
                   <p className="text-xs text-neutral-400">
-                    Clique no botão "Nova Planilha" e faça o upload do arquivo
-                    com os números que você deseja checar.
+                    {
+                      "Clique no botão 'Nova Planilha', siga as instruções e faça o upload do arquivo"
+                    }
+                    {"com os números que você deseja checar."}
+                  </p>
+                  <p className="text-xs text-neutral-400">
+                    {"Importante: "}
+                    {
+                      "O arquivo com o resultado da consulta ficará disponível para download na"
+                    }
+                    {
+                      "plataforma por 30 dias. Após esse período, ele será apagado."
+                    }
                   </p>
                 </div>
               </div>

@@ -76,7 +76,7 @@ export function User() {
             <TableRow key={item.id}>
               <TableCell className="font-medium">{item.name}</TableCell>
               <TableCell>{item.email}</TableCell>
-              <TableCell>{moneyFormat(item.credit / 100)}</TableCell>
+              <TableCell>{moneyFormat(item.credit)}</TableCell>
               <TableCell>
                 {item.role === "admin" ? "Administrador" : "Usuário"}
               </TableCell>

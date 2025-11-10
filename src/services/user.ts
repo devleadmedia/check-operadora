@@ -65,7 +65,7 @@ export class User {
     try {
       await api.post('/api/users/credits',{
         user_id: userId,
-        amount: amount * 100,
+        amount,
         description
       });
     } catch (err) {
@@ -95,16 +95,6 @@ export class User {
       return response.data;
     } catch (err) {
       console.log(err);
-    }
-  }
-
-  async getCreditsByToken(): Promise<number>{
-    try {
-      const { data } = await api.get(`/api/extrato/creditos`);
-      return data?.credit / 100;
-    } catch (err) {
-      console.log(err);
-      return 0
     }
   }
 }

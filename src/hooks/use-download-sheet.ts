@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import * as XLSX from "xlsx";
 import { toast } from "sonner";
+import { Checker } from "@/services/checker";
 
 export interface SheetRow {
   id: string;
@@ -16,16 +16,18 @@ export interface SheetRow {
   municipalityRegion: string;
   municipality: string;
   uf: string;
+  M: string;
 }
 
 export function useDownloadSheet() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [sheetData, setSheetData] = useState<SheetRow[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const checker = new Checker();
 
-  const downloadAndProcessSheet = async (s3Url: string) => {
-    if (!s3Url) {
-      toast.error("URL da planilha não disponível");
+  const downloadAndProcessSheet = async (fileId: string) => {
+    if (!fileId) {
+      toast.error("ID do arquivo não disponível");
       return [];
     }
 
@@ -33,94 +35,54 @@ export function useDownloadSheet() {
     setError(null);
 
     try {
-      // 1. Baixar o arquivo direto do S3
-      const response = await fetch(s3Url, {
-        method: "GET",
-        mode: "cors",
-      });
+      toast.loading("Baixando planilha...");
 
-      if (!response.ok) {
-        throw new Error("Erro ao baixar arquivo");
+      // 1. Fazer requisição para o backend buscar o arquivo
+      const response = await checker.downloadFile(fileId);
+
+      toast.dismiss();
+
+      let jsonData: any[][];
+
+      // O backend retorna CSV como string
+      if (typeof response === "string") {
+        // Parsear CSV manualmente
+        const lines = response.split("\n").filter((line) => line.trim());
+        jsonData = lines.map((line) => {
+          // Split por ponto e vírgula (delimitador do CSV)
+          return line.split(";").map((cell) => cell.trim());
+        });
+      } else {
+        throw new Error(
+          `Formato de resposta não suportado. Esperado string (CSV), recebido: ${typeof response}`
+        );
       }
-
-      const blob = await response.blob();
-      const arrayBuffer = await blob.arrayBuffer();
-
-      // 2. Processar com XLSX
-      const workbook = XLSX.read(arrayBuffer, { type: "array" });
-
-      // Pegar a primeira planilha
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-
-      // Converter para JSON
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-        header: 1,
-        defval: "",
-      }) as any[][];
 
       // 3. Processar dados
       if (jsonData.length < 2) {
+        toast.dismiss();
         toast.warning("Planilha vazia ou sem dados");
         return [];
       }
 
-      // Primeira linha são os headers
+      // Primeira linha são os headers (já em português do backend)
       const headers = jsonData[0].map((h) => String(h).toLowerCase().trim());
 
-      // Mapear índices das colunas
+      // Mapear índices das colunas (nomes em português do backend)
       const columnIndexes = {
         ddd: findColumnIndex(headers, ["ddd"]),
-        numero: findColumnIndex(headers, [
-          "numero",
-          "número",
-          "telefone",
-          "phone",
-          "number",
-        ]),
-        anatel: findColumnIndex(headers, [
-          "válido",
-          "valido",
-          "anatel",
-          "status_anatel",
-          "status anatel",
-        ]),
-        tipo: findColumnIndex(headers, ["tipo", "type"]),
-        operadora_original: findColumnIndex(headers, [
-          "operadora_original",
-          "operadora original",
-          "op_original",
-          "operadora de origem",
-        ]),
-        operadora_atual: findColumnIndex(headers, [
-          "operadora_atual",
-          "operadora atual",
-          "op_atual",
-          "operadora",
-        ]),
-        portado: findColumnIndex(headers, ["portado", "portabilidade"]),
+        numero: findColumnIndex(headers, ["telefone", "Telefone", "numero", "Numero", "número", "Número"]),
+        anatel: findColumnIndex(headers, ["anatel"]),
+        tipo: findColumnIndex(headers, ["tipo"]),
+        operadora_original: findColumnIndex(headers, ["operadora original"]),
+        operadora_atual: findColumnIndex(headers, ["operadora atual"]),
+        portado: findColumnIndex(headers, ["portado"]),
         data_portabilidade: findColumnIndex(headers, [
-          "Portado",
-          "portado",
-          "data_portabilidade",
-          "data portabilidade",
-          "data",
-          "date",
+          "data da portabilidade",
         ]),
-        municipio: findColumnIndex(headers, [
-          "municipio",
-          "município",
-          "cidade",
-          "city",
-          "municipio_registro",
-        ]),
-        municipio_regiao: findColumnIndex(headers, [
-          "municipio_regiao",
-          "município região",
-          "regiao",
-          "região",
-        ]),
-        uf: findColumnIndex(headers, ["uf", "estado", "state"]),
+        municipio: findColumnIndex(headers, ["município", "municipio"]),
+        uf: findColumnIndex(headers, ["uf"]),
+        M: findColumnIndex(headers, ["m", "fidelidade"]),
       };
 
       // Processar linhas de dados
@@ -132,17 +94,15 @@ export function useDownloadSheet() {
         // Pular linhas vazias
         if (!row || row.every((cell) => !cell)) continue;
 
+        const ddd = getCellValue(row, columnIndexes.ddd);
         const numero = getCellValue(row, columnIndexes.numero);
 
         // Pular se não tiver número
         if (!numero) continue;
 
-        // Extrair DDD do número
-        const ddd = extractDDD(numero, getCellValue(row, columnIndexes.ddd));
-
         processedData.push({
           id: `${i}`,
-          ddd,
+          ddd: ddd || "-",
           number: numero,
           anatel: getCellValue(row, columnIndexes.anatel) || "-",
           type: getCellValue(row, columnIndexes.tipo) || "-",
@@ -153,16 +113,15 @@ export function useDownloadSheet() {
           datePortate: formatDate(
             getCellValue(row, columnIndexes.data_portabilidade)
           ),
-          municipalityRegion:
-            getCellValue(row, columnIndexes.municipio_regiao) ||
-            getCellValue(row, columnIndexes.municipio) ||
-            "-",
+          municipalityRegion: getCellValue(row, columnIndexes.municipio) || "-",
           municipality: getCellValue(row, columnIndexes.municipio) || "-",
           uf: getCellValue(row, columnIndexes.uf) || "-",
+          M: getCellValue(row, columnIndexes.M) || "-",
         });
       }
 
       setSheetData(processedData);
+      toast.dismiss();
       toast.success(`${processedData.length} registros carregados`);
 
       return processedData;
@@ -171,6 +130,7 @@ export function useDownloadSheet() {
       const errorMessage =
         err instanceof Error ? err.message : "Erro ao processar planilha";
       setError(errorMessage);
+      toast.dismiss();
       toast.error(errorMessage);
       return [];
     } finally {
@@ -211,24 +171,6 @@ function findColumnIndex(headers: string[], possibleNames: string[]): number {
 function getCellValue(row: any[], index: number): string {
   if (index === -1 || !row[index]) return "";
   return String(row[index]).trim();
-}
-
-/**
- * Extrai DDD do número ou usa o valor da coluna DDD
- */
-function extractDDD(numero: string, dddFromColumn?: string): string {
-  // Se já tem DDD na coluna, usar ele
-  if (dddFromColumn && dddFromColumn !== "-") {
-    return dddFromColumn;
-  }
-
-  // Extrair dos 2 primeiros dígitos do número
-  const cleanNumber = numero.replace(/\D/g, "");
-  if (cleanNumber.length >= 10) {
-    return cleanNumber.substring(0, 2);
-  }
-
-  return "-";
 }
 
 /**

@@ -18,6 +18,7 @@ import {
   Smartphone,
   Upload,
   XCircle,
+  Ruler,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,16 +73,15 @@ import { ConfirmedDeleteChecker } from "./confirmed-delete-checker";
 import iconBrasil from "@/assets/icon-brasil.svg";
 import { CheckerFile } from "@/services/checker";
 
-import { getStatsValue, countDDDs, formatNumber } from "@/utils/stats-helpers";
+import { getStatsValue, formatNumber } from "@/utils/stats-helpers";
 
 import { Status } from "./status";
 import { Statistics, StatsFromAPI } from "./statistics";
+import { toast } from "sonner";
 
 interface ICheckerDataProps {
   data: CheckerFile[];
   onViewDetails?: (item: CheckerFile) => void;
-
-  // Novas props para paginação
   totalCount: number;
   currentPage: number;
   pageSize: number;
@@ -110,8 +110,43 @@ export function DataTableChecker({
   const [rowSelection, setRowSelection] = useState({});
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
-  function handleDownload(fileUrl: string, fileName: string) {
+  function bytesToMB(bytes: number): string {
+    if (!bytes || bytes === 0) return "0 MB";
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(2)} MB`;
+  }
+
+  function isFileExpired(expiresAt: string): boolean {
+    if (!expiresAt) return false;
+    const expirationDate = new Date(expiresAt);
+    const now = new Date();
+    return now >= expirationDate;
+  }
+
+  function countDDDs(stats: any): number {
+    if (!stats || typeof stats !== "object") return 0;
+    if (stats.ddd && typeof stats.ddd === "object") {
+      return Object.keys(stats.ddd).length;
+    }
+    return 0;
+  }
+
+  function countUFs(stats: any): number {
+    if (!stats || typeof stats !== "object") return 0;
+    if (stats.uf && typeof stats.uf === "object") {
+      return Object.keys(stats.uf).length;
+    }
+    return 0;
+  }
+
+  function handleDownload(fileUrl: string, fileName: string, expiresAt: string) {
     if (!fileUrl) return;
+    
+    if (isFileExpired(expiresAt)) {
+      toast.error("O prazo para download deste arquivo expirou.");
+      return;
+    }
+    
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = fileName;
@@ -124,8 +159,8 @@ export function DataTableChecker({
       accessorKey: "original_file_name",
       header: () => {
         return (
-          <div className="flex items-center gap-2">
-            <File size={16} className="stroke-green-500" />
+          <div className="flex items-center gap-2 w-20">
+            <File size={16} className="stroke-[#8ac850]" />
             Arquivo
           </div>
         );
@@ -133,8 +168,11 @@ export function DataTableChecker({
       cell: ({ row }) => {
         const fileUrl = row.original.s3_url;
         const fileName = row.getValue("original_file_name") as string;
+        const expiresAt = row.original.expires_at;
+        const expired = isFileExpired(expiresAt);
+        
         return (
-          <div className="">
+          <div className="w-16">
             <TooltipProvider delayDuration={0.5}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -142,13 +180,14 @@ export function DataTableChecker({
                     type="button"
                     variant={"link"}
                     className="flex items-center gap-2"
-                    onClick={() => handleDownload(fileUrl, fileName)}
+                    onClick={() => handleDownload(fileUrl, fileName, expiresAt)}
+                    disabled={expired}
                   >
                     <p className="truncate line-clamp-2 w-20">{fileName}</p>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Baixar {fileName || "Arquivo"}</p>
+                  <p>{expired ? "Arquivo expirado" : `Baixar ${fileName || "Arquivo"}`}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -157,18 +196,34 @@ export function DataTableChecker({
       },
     },
     {
+      accessorKey: "file_size",
+      header: () => {
+        return (
+          <div className="flex items-center gap-2 w-14">
+            <Ruler size={16} className="stroke-[#8ac850]" />
+            MB
+          </div>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="text-center">
+          <p>{bytesToMB(row.getValue("file_size"))}</p>
+        </div>
+      ),
+    },
+    {
       accessorKey: "created_at",
       header: () => {
         return (
-          <div className="flex items-center gap-2">
-            <Calendar size={16} className="stroke-green-500" />
+          <div className="flex items-center gap-2 w-14">
+            <Calendar size={16} className="stroke-[#8ac850]" />
             Data
           </div>
         );
       },
       cell: ({ row }) => (
         <div>
-          <p className="w-16">
+          <p>
             {new Date(row.getValue("created_at")).toLocaleString("pt-BR", {
               year: "2-digit",
               month: "2-digit",
@@ -185,14 +240,14 @@ export function DataTableChecker({
       accessorKey: "upload",
       header: () => {
         return (
-          <div className="flex items-center gap-2">
-            <Upload size={16} className="stroke-green-500" />
+          <div className="flex items-center gap-2 w-20">
+            <Upload size={16} className="stroke-[#8ac850]" />
             Upload
           </div>
         );
       },
       cell: () => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{status === "success" ? "ok" : "erro"}</p>
         </div>
       ),
@@ -201,8 +256,8 @@ export function DataTableChecker({
       accessorKey: "status",
       header: () => {
         return (
-          <div className="flex items-center gap-2">
-            <Loader2 size={16} className="stroke-green-500" />
+          <div className="flex items-center gap-2 w-16">
+            <Loader2 size={16} className="stroke-[#8ac850]" />
             Status
           </div>
         );
@@ -211,7 +266,6 @@ export function DataTableChecker({
         const status = row.getValue("status") as string;
         const fileId = row.original.id;
 
-        // Agora simplesmente renderize o componente
         return <Status status={status} fileId={fileId} queryKey={queryKey} />;
       },
     },
@@ -221,13 +275,13 @@ export function DataTableChecker({
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <FileText size={16} className="stroke-green-500" />
+            <FileText size={16} className="stroke-[#8ac850]" />
             Total
           </div>
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{formatNumber(getStatsValue(row.original?.stats, "total"))}</p>
         </div>
       ),
@@ -243,7 +297,7 @@ export function DataTableChecker({
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{formatNumber(getStatsValue(row.original?.stats, "invalid"))}</p>
         </div>
       ),
@@ -253,13 +307,13 @@ export function DataTableChecker({
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <CheckCircle size={16} className="stroke-green-500" />
+            <CheckCircle size={16} className="stroke-[#8ac850]" />
             Válidos
           </div>
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{formatNumber(getStatsValue(row.original?.stats, "valid"))}</p>
         </div>
       ),
@@ -269,13 +323,13 @@ export function DataTableChecker({
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <Phone size={16} className="stroke-green-500" />
+            <Phone size={16} className="stroke-[#8ac850]" />
             Fixos
           </div>
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{formatNumber(getStatsValue(row.original?.stats, "fixo"))}</p>
         </div>
       ),
@@ -285,13 +339,13 @@ export function DataTableChecker({
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <Smartphone size={16} className="stroke-green-500" />
+            <Smartphone size={16} className="stroke-[#8ac850]" />
             Móveis
           </div>
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{formatNumber(getStatsValue(row.original?.stats, "movel"))}</p>
         </div>
       ),
@@ -301,13 +355,13 @@ export function DataTableChecker({
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <ArrowDownUp size={16} className="stroke-green-500" />
+            <ArrowDownUp size={16} className="stroke-[#8ac850]" />
             Portados
           </div>
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{formatNumber(getStatsValue(row.original?.stats, "portado"))}</p>
         </div>
       ),
@@ -323,8 +377,8 @@ export function DataTableChecker({
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "uf"))}</p>
+        <div className="text-center">
+          <p>{countUFs(row.original?.stats)}</p>
         </div>
       ),
     },
@@ -333,13 +387,13 @@ export function DataTableChecker({
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <Building2 size={16} className="stroke-green-500" />
+            <Building2 size={16} className="stroke-[#8ac850]" />
             Cidades
           </div>
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{formatNumber(getStatsValue(row.original?.stats, "city"))}</p>
         </div>
       ),
@@ -349,13 +403,13 @@ export function DataTableChecker({
       header: () => {
         return (
           <div className="flex items-center gap-2">
-            <Globe size={16} className="stroke-green-500" />
+            <Globe size={16} className="stroke-[#8ac850]" />
             DDDs
           </div>
         );
       },
       cell: ({ row }) => (
-        <div className=" text-center">
+        <div className="text-center">
           <p>{countDDDs(row.original?.stats)}</p>
         </div>
       ),
@@ -366,21 +420,10 @@ export function DataTableChecker({
       header: "Ações",
       enableHiding: false,
       cell: ({ row }) => {
+        const expired = isFileExpired(row.original.expires_at);
+        
         return (
           <div className="flex items-center justify-end gap-2">
-            {/* {row?.original?.status === "error" && (
-              <TooltipProvider delayDuration={0.5}>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Button type="button" variant={"outline"} size={"icon"}>
-                      <RefreshCcw size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Reprocessar</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )} */}
-
             <TooltipProvider delayDuration={0.5}>
               <Tooltip>
                 <TooltipTrigger>
@@ -419,19 +462,22 @@ export function DataTableChecker({
                     type="button"
                     variant={"outline"}
                     size={"icon"}
-                    className="bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600"
-                    disabled={!row.original.s3_url}
+                    className="bg-[#8ac850] hover:bg-[#5e8e33] dark:bg-[#8ac850] dark:hover:bg-[#5e8e33]"
+                    disabled={!row.original.s3_url || expired}
                     onClick={() =>
                       handleDownload(
                         row.original.s3_url,
-                        row.original.original_file_name
+                        row.original.original_file_name,
+                        row.original.expires_at
                       )
                     }
                   >
                     <Download size={16} className="stroke-white" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Baixar planilha</TooltipContent>
+                <TooltipContent>
+                  {expired ? "Download expirado" : "Baixar planilha"}
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <TooltipProvider delayDuration={0.5}>
@@ -615,7 +661,7 @@ export function DataTableChecker({
                 <SelectValue placeholder={pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
-                {[10, 20, 30, 40, 50].map((size) => (
+                {[10, 25, 50, 75, 100].map((size) => (
                   <SelectItem key={size} value={`${size}`}>
                     {size}
                   </SelectItem>

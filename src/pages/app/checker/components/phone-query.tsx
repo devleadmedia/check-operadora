@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { usePhoneQuery } from "@/hooks/usePhoneQuery";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatPhoneNumber } from "@/utils/format-number";
 
 export function PhoneQuery() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -85,15 +86,6 @@ Status: Não Portado`;
     }
   };
 
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, "");
-
-    if (numbers.length <= 10) {
-      return numbers.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
-    }
-    return numbers.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
-  };
-
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatPhoneNumber(e.target.value);
     setPhoneNumber(formatted);
@@ -114,13 +106,13 @@ Status: Não Portado`;
           placeholder="Digite o número para consultar..."
           value={phoneNumber}
           onChange={handlePhoneChange}
-          className="w-[250px]"
+          className="w-[250px] placeholder:text-xs"
           maxLength={15}
         />
         <Button
           type="button"
           onClick={handleSearch}
-          className="flex items-center gap-2 text-white bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600"
+          className="flex items-center gap-2 text-white bg-[#8ac850] hover:bg-[#5e8e33] dark:bg-[#8ac850] dark:hover:bg-[#5e8e33]"
         >
           <Search size={16} />
           {isLoading ? "Consultando..." : "Consultar"}
@@ -181,6 +173,9 @@ Status: Não Portado`;
               <TableHead className="bg-background/95 backdrop-blur">
                 UF
               </TableHead>
+              <TableHead className="bg-background/95 backdrop-blur">
+                M
+              </TableHead>
               <TableHead className="text-right bg-background/95 backdrop-blur">
                 Ações
               </TableHead>
@@ -191,7 +186,7 @@ Status: Não Portado`;
               <TableRow>
                 <TableCell colSpan={10} className="h-24 text-center">
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-[#8ac850] border-t-transparent rounded-full animate-spin" />
                     Consultando número...
                   </div>
                 </TableCell>
@@ -236,7 +231,10 @@ Status: Não Portado`;
                   <p className="capitalize">-</p>
                 </TableCell>
                 <TableCell>
-                  <p className="capitalize">-</p>
+                  <p className="capitalize">{result?.UF || '-'}</p>
+                </TableCell>
+                <TableCell>
+                  <p className="capitalize">{result?.M || '-'}</p>
                 </TableCell>
                 <TableCell className="text-right">
                   <TooltipProvider delayDuration={0.5}>

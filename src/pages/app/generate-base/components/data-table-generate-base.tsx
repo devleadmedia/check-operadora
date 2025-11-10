@@ -485,7 +485,7 @@ export function GenerateBaseTable() {
               type="button"
               onClick={handleSubmit(onSubmit)}
               variant={"default"}
-              className="flex items-center gap-2 h-9 text-white bg-green-500 hover:bg-green-400 dark:bg-green-700 dark:hover:bg-green-600"
+              className="flex items-center gap-2 h-9 text-white bg-[#8ac850] hover:bg-[#8ac850] dark:bg-[#8ac850] dark:hover:bg-[#8ac850]"
             >
               <Plus size={16} />
               Gerar Base
@@ -566,7 +566,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <Upload size={16} className="stroke-green-500" />
+                    <Upload size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">11</span>
                   </div>
                 </TooltipTrigger>
@@ -580,7 +580,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <Loader2 size={16} className="stroke-green-500" />
+                    <Loader2 size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">11</span>
                   </div>
                 </TooltipTrigger>
@@ -594,7 +594,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <FileText size={16} className="stroke-green-500" />
+                    <FileText size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">{stats.total}</span>
                   </div>
                 </TooltipTrigger>
@@ -608,7 +608,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <CheckCircle size={16} className="stroke-green-500" />
+                    <CheckCircle size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">{stats.validos}</span>
                   </div>
                 </TooltipTrigger>
@@ -636,7 +636,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <Phone size={16} className="stroke-green-500" />
+                    <Phone size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">{stats.fixos}</span>
                   </div>
                 </TooltipTrigger>
@@ -650,7 +650,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <Smartphone size={16} className="stroke-green-500" />
+                    <Smartphone size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">{stats.moveis}</span>
                   </div>
                 </TooltipTrigger>
@@ -664,7 +664,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <ArrowDownUp size={16} className="stroke-green-500" />
+                    <ArrowDownUp size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">{stats.portados}</span>
                   </div>
                 </TooltipTrigger>
@@ -678,7 +678,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <Building2 size={16} className="stroke-green-500" />
+                    <Building2 size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">{stats.cidades}</span>
                   </div>
                 </TooltipTrigger>
@@ -692,7 +692,7 @@ export function GenerateBaseTable() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <Globe size={16} className="stroke-green-500" />
+                    <Globe size={16} className="stroke-[#8ac850]" />
                     <span className="text-sm">{stats.ddds}</span>
                   </div>
                 </TooltipTrigger>

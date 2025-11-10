@@ -40,7 +40,6 @@ class WebSocketService {
       this.socket.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
-          console.log("📨 Mensagem recebida:", message);
           this.handleMessage(message);
         } catch (error) {
           console.error("❌ Erro ao parsear mensagem:", error);
@@ -52,7 +51,6 @@ class WebSocketService {
       };
 
       this.socket.onclose = () => {
-        console.log("🔌 WebSocket desconectado");
         this.attemptReconnect();
       };
     } catch (error) {

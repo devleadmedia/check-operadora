@@ -34,6 +34,7 @@ export interface CheckerFile {
   status: "completed" | "processing" | "failed";
   created_at: string;
   updated_at: string;
+  expires_at: string;
 }
 
 export interface CheckerResponse {
@@ -51,6 +52,8 @@ export interface PhonePortateResponse {
     operadora_atual?: string;
     data_portabilidade?: string;
     tipo: string;
+    UF: string
+    M: string
   };
   error?: string;
 }
@@ -80,6 +83,12 @@ export class Checker {
     const response = await api.get(`/api/check/portabilidade/${number}`);
 
     return response.data;
+  }
+
+  async downloadFile(id: string): Promise<string> {
+    const response = await api.post("api/helper/relay", {id: id})
+
+    return response.data
   }
 
   async importFile(file: File): Promise<UploadFileResponse> {
