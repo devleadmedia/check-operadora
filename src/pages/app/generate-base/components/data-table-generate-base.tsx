@@ -17,8 +17,8 @@ import {
   ChevronsRight,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 import {
   ColumnDef,
@@ -31,29 +31,24 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+} from '@tanstack/react-table'
+import { ChevronDown } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -61,49 +56,50 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { formatPhoneNumber } from "@/utils/format-number";
-import { useGenerateBaseController, PhoneData } from "../controller";
-import { Controller } from "react-hook-form";
+} from '@/components/ui/table'
+import { useState } from 'react'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import { formatPhoneNumber } from '@/utils/format-number'
+import { useGenerateBaseController, PhoneData } from '../controller'
+import { Controller } from 'react-hook-form'
+import { BRAZIL_STATES } from '@/utils/brazil-states.util'
+import { BRAZIL_DDD } from '@/utils/ddds.util'
 
 export function GenerateBaseTable() {
-  const { hookForm, phoneData, hasGenerated, clearData } =
-    useGenerateBaseController();
-  const { control, handleSubmit, onSubmit, watch } = hookForm;
+  const { hookForm, phoneData, hasGenerated, clearData } = useGenerateBaseController()
+  const { control, handleSubmit, onSubmit, watch } = hookForm
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
 
   // Watch tipo para habilitar/desabilitar UF e Cidades
-  const tipoSelecionado = watch("type");
-  const portate = watch("portate");
+  const tipoSelecionado = watch('type')
+  const portate = watch('portate')
 
   // Calcular estatísticas
   const stats = {
     total: phoneData.length,
     validos: phoneData.length,
     invalidos: 0,
-    fixos: phoneData.filter((d) => d.type === "Fixo").length,
-    moveis: phoneData.filter((d) => d.type === "Móvel").length,
+    fixos: phoneData.filter((d) => d.type === 'Fixo').length,
+    moveis: phoneData.filter((d) => d.type === 'Móvel').length,
     portados: phoneData.filter((d) => d.portate).length,
     cidades: new Set(phoneData.map((d) => d.municipalityRegion)).size,
     ddds: new Set(phoneData.map((d) => d.ddd)).size,
-  };
+  }
 
   const columns: ColumnDef<PhoneData>[] = [
     {
-      id: "select",
+      id: 'select',
       header: ({ table }) => (
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -120,134 +116,127 @@ export function GenerateBaseTable() {
       enableHiding: false,
     },
     {
-      accessorKey: "ddd",
-      header: "DDD",
+      accessorKey: 'ddd',
+      header: 'DDD',
       cell: ({ row }) => (
         <div className="capitalize">
-          <p>{row.getValue("ddd") || "-"}</p>
+          <p>{row.getValue('ddd') || '-'}</p>
         </div>
       ),
     },
     {
-      accessorKey: "number",
-      header: "Número",
+      accessorKey: 'number',
+      header: 'Número',
       cell: ({ row }) => (
         <div className="capitalize">
-          <p>{formatPhoneNumber(row.getValue("number")) || "-"}</p>
+          <p>{formatPhoneNumber(row.getValue('number')) || '-'}</p>
         </div>
       ),
     },
     {
-      accessorKey: "anatel",
-      header: "Anatel",
+      accessorKey: 'anatel',
+      header: 'Anatel',
       cell: ({ row }) => (
         <div className="capitalize">
-          <p>{row.getValue("anatel") || "-"}</p>
+          <p>{row.getValue('anatel') || '-'}</p>
         </div>
       ),
     },
     {
-      accessorKey: "type",
-      header: "Tipo",
+      accessorKey: 'type',
+      header: 'Tipo',
       cell: ({ row }) => (
         <div className="capitalize">
-          <p>{row.getValue("type") || "-"}</p>
+          <p>{row.getValue('type') || '-'}</p>
         </div>
       ),
     },
     {
-      accessorKey: "operatorOrigem",
-      header: "Operadora de origem",
+      accessorKey: 'operatorOrigem',
+      header: 'Operadora de origem',
       cell: ({ row }) => (
         <div className="capitalize">
           <TooltipProvider delayDuration={0.5}>
             <Tooltip>
               <TooltipTrigger>
-                <p className="truncate line-clamp-2 w-20">
-                  {row.getValue("operatorOrigem")}
-                </p>
+                <p className="truncate line-clamp-2 w-20">{row.getValue('operatorOrigem')}</p>
               </TooltipTrigger>
-              <TooltipContent>{row.getValue("operatorOrigem")}</TooltipContent>
+              <TooltipContent>{row.getValue('operatorOrigem')}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       ),
     },
     {
-      accessorKey: "operatorNow",
-      header: "Operadora atual",
+      accessorKey: 'operatorNow',
+      header: 'Operadora atual',
       cell: ({ row }) => (
         <div className="capitalize">
           <TooltipProvider delayDuration={0.5}>
             <Tooltip>
               <TooltipTrigger>
-                <p className="truncate line-clamp-2 w-20">
-                  {row.getValue("operatorNow")}
-                </p>
+                <p className="truncate line-clamp-2 w-20">{row.getValue('operatorNow')}</p>
               </TooltipTrigger>
-              <TooltipContent>{row.getValue("operatorNow")}</TooltipContent>
+              <TooltipContent>{row.getValue('operatorNow')}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       ),
     },
     {
-      accessorKey: "portate",
-      header: "Portado",
+      accessorKey: 'portate',
+      header: 'Portado',
       cell: ({ row }) => (
         <div className="capitalize">
-          <p>{row.getValue("portate") ? "Sim" : "Não"}</p>
+          <p>{row.getValue('portate') ? 'Sim' : 'Não'}</p>
         </div>
       ),
     },
     {
-      accessorKey: "datePortate",
-      header: "Data Portabilidade",
+      accessorKey: 'datePortate',
+      header: 'Data Portabilidade',
       cell: ({ row }) => (
         <div className="capitalize">
-          <p>{row.getValue("datePortate") || "-"}</p>
+          <p>{row.getValue('datePortate') || '-'}</p>
         </div>
       ),
     },
     {
-      accessorKey: "municipalityRegion",
-      header: "Município de Registro",
+      accessorKey: 'municipalityRegion',
+      header: 'Município de Registro',
       cell: ({ row }) => (
         <div className="capitalize">
           <TooltipProvider delayDuration={0.5}>
             <Tooltip>
               <TooltipTrigger>
                 <p className="truncate line-clamp-2 w-20">
-                  {row.getValue("uf")} -{" "}
-                  {row.getValue("municipalityRegion") || "-"}
+                  {row.getValue('uf')} - {row.getValue('municipalityRegion') || '-'}
                 </p>
               </TooltipTrigger>
-              <TooltipContent>
-                {row.getValue("municipalityRegion") || "-"}
-              </TooltipContent>
+              <TooltipContent>{row.getValue('municipalityRegion') || '-'}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       ),
     },
     {
-      id: "actions",
-      header: "Ações",
+      id: 'actions',
+      header: 'Ações',
       enableHiding: false,
       cell: () => {
         return (
           <div className="flex items-center justify-end gap-2">
-            <Button type="button" variant={"outline"} size={"icon"}>
+            <Button type="button" variant={'outline'} size={'icon'}>
               <RefreshCcw size={16} />
             </Button>
-            <Button type="button" variant={"outline"} size={"icon"}>
+            <Button type="button" variant={'outline'} size={'icon'}>
               <Copy size={16} />
             </Button>
           </div>
-        );
+        )
       },
     },
-  ];
+  ]
 
   const table = useReactTable({
     data: phoneData,
@@ -266,7 +255,7 @@ export function GenerateBaseTable() {
       columnVisibility,
       rowSelection,
     },
-  });
+  })
 
   return (
     <div className="w-full space-y-4">
@@ -309,14 +298,18 @@ export function GenerateBaseTable() {
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
-                    disabled={tipoSelecionado !== "fixo"}
+                    disabled={tipoSelecionado !== 'fixo'}
                   >
                     <SelectTrigger id="uf" className="max-w-max">
                       <SelectValue placeholder="UF" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="lista">Lista</SelectItem>
+                      {BRAZIL_STATES?.map((state) => (
+                        <SelectItem key={state.label} value={state.value}>
+                          {state.value}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
@@ -335,7 +328,7 @@ export function GenerateBaseTable() {
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
-                    disabled={tipoSelecionado !== "fixo"}
+                    disabled={tipoSelecionado !== 'fixo'}
                   >
                     <SelectTrigger id="cidades" className="max-w-max">
                       <SelectValue placeholder="Cidades" />
@@ -364,30 +357,11 @@ export function GenerateBaseTable() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="lista">Lista</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-
-            {/* Portados */}
-            <div className="space-y-1">
-              <Label htmlFor="portate" className="text-xs">
-                Portados
-              </Label>
-              <Controller
-                name="portate"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="portate" className="max-w-max">
-                      <SelectValue placeholder="Portados" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sim">Sim</SelectItem>
-                      <SelectItem value="não">Não</SelectItem>
-                      <SelectItem value="indiferente">Indiferente</SelectItem>
+                      {BRAZIL_DDD?.map((ddd) => (
+                        <SelectItem key={ddd.label} value={ddd.value}>
+                          {ddd.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
@@ -408,7 +382,7 @@ export function GenerateBaseTable() {
                     id="date_portability_from"
                     className="max-w-max"
                     {...field}
-                    disabled={portate === "não"}
+                    disabled={portate === 'não'}
                   />
                 )}
               />
@@ -428,7 +402,7 @@ export function GenerateBaseTable() {
                     id="date_portability_to"
                     className="max-w-max"
                     {...field}
-                    disabled={portate === "não"}
+                    disabled={portate === 'não'}
                   />
                 )}
               />
@@ -484,7 +458,7 @@ export function GenerateBaseTable() {
             <Button
               type="button"
               onClick={handleSubmit(onSubmit)}
-              variant={"default"}
+              variant={'default'}
               className="flex items-center gap-2 h-9 text-white bg-[#8ac850] hover:bg-[#8ac850] dark:bg-[#8ac850] dark:hover:bg-[#8ac850]"
             >
               <Plus size={16} />
@@ -494,10 +468,10 @@ export function GenerateBaseTable() {
               <>
                 <Button
                   type="button"
-                  variant={"outline"}
+                  variant={'outline'}
                   onClick={clearData}
                   className="flex items-center gap-2 h-9"
-                  size={"icon"}
+                  size={'icon'}
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -517,25 +491,20 @@ export function GenerateBaseTable() {
                             key={column.id}
                             className="capitalize"
                             checked={column.getIsVisible()}
-                            onCheckedChange={(value) =>
-                              column.toggleVisibility(!!value)
-                            }
+                            onCheckedChange={(value) => column.toggleVisibility(!!value)}
                           >
                             {(() => {
                               const headerFromTable = table
                                 .getHeaderGroups()
                                 .flatMap((headerGroup) => headerGroup.headers)
-                                .find((h) => h.column.id === column.id);
+                                .find((h) => h.column.id === column.id)
 
                               return column.columnDef.header && headerFromTable
-                                ? flexRender(
-                                    column.columnDef.header,
-                                    headerFromTable.getContext()
-                                  )
-                                : column.id;
+                                ? flexRender(column.columnDef.header, headerFromTable.getContext())
+                                : column.id
                             })()}
                           </DropdownMenuCheckboxItem>
-                        );
+                        )
                       })}
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -551,8 +520,8 @@ export function GenerateBaseTable() {
           <FileText className="h-16 w-16 text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">Nenhuma base gerada</h3>
           <p className="text-sm text-muted-foreground text-center max-w-md">
-            Selecione os filtros acima e clique em "Gerar Base" para criar uma
-            base de dados de exemplo com números de telefone.
+            Selecione os filtros acima e clique em "Gerar Base" para criar uma base de dados de
+            exemplo com números de telefone.
           </p>
         </div>
       )}
@@ -714,18 +683,14 @@ export function GenerateBaseTable() {
                         <TableHead
                           key={header.id}
                           className={`${
-                            header.column.columnDef.header === "Ações" &&
-                            "text-right"
+                            header.column.columnDef.header === 'Ações' && 'text-right'
                           } bg-background/95 backdrop-blur`}
                         >
                           {header.isPlaceholder
                             ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                            : flexRender(header.column.columnDef.header, header.getContext())}
                         </TableHead>
-                      );
+                      )
                     })}
                   </TableRow>
                 ))}
@@ -733,26 +698,17 @@ export function GenerateBaseTable() {
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
+                    <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
                       Nenhum resultado.
                     </TableCell>
                   </TableRow>
@@ -764,7 +720,7 @@ export function GenerateBaseTable() {
           {/* Informações de Seleção e Paginação */}
           <div className="flex items-center justify-end space-x-2 ">
             <div className="text-muted-foreground flex-1 text-sm">
-              {table.getFilteredSelectedRowModel().rows.length} de{" "}
+              {table.getFilteredSelectedRowModel().rows.length} de{' '}
               {table.getFilteredRowModel().rows.length} linha(s) selecionadas.
             </div>
             <div className="flex w-full items-center gap-8 lg:w-fit">
@@ -775,13 +731,11 @@ export function GenerateBaseTable() {
                 <Select
                   value={`${table.getState().pagination.pageSize}`}
                   onValueChange={(value) => {
-                    table.setPageSize(Number(value));
+                    table.setPageSize(Number(value))
                   }}
                 >
                   <SelectTrigger className="w-20" id="rows-per-page">
-                    <SelectValue
-                      placeholder={table.getState().pagination.pageSize}
-                    />
+                    <SelectValue placeholder={table.getState().pagination.pageSize} />
                   </SelectTrigger>
                   <SelectContent side="top">
                     {[5, 10, 20, 30, 40, 50].map((pageSize) => (
@@ -793,8 +747,7 @@ export function GenerateBaseTable() {
                 </Select>
               </div>
               <div className="flex w-fit items-center justify-center text-sm font-medium">
-                Página {table.getState().pagination.pageIndex + 1} de{" "}
-                {table.getPageCount()}
+                Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
               </div>
               <div className="ml-auto flex items-center gap-2 lg:ml-0">
                 <Button
@@ -842,5 +795,5 @@ export function GenerateBaseTable() {
         </>
       )}
     </div>
-  );
+  )
 }

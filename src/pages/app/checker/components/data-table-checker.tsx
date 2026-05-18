@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ArrowDownUp,
-  Building2,
   Calendar,
   CheckCircle,
   ChevronLeft,
@@ -19,9 +18,9 @@ import {
   Upload,
   XCircle,
   Ruler,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 import {
   ColumnDef,
@@ -33,22 +32,22 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
+} from '@tanstack/react-table'
+import { ChevronDown } from 'lucide-react'
 
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -56,40 +55,35 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react'
+import { Label } from '@/components/ui/label'
 
-import { UploadFile } from "./upload-file";
-import { ConfirmedDeleteChecker } from "./confirmed-delete-checker";
+import { UploadFile } from './upload-file'
+import { ConfirmedDeleteChecker } from './confirmed-delete-checker'
 
-import iconBrasil from "@/assets/icon-brasil.svg";
-import { CheckerFile } from "@/services/checker";
+import iconBrasil from '@/assets/icon-brasil.svg'
+import { CheckerFile } from '@/services/checker'
 
-import { getStatsValue, formatNumber } from "@/utils/stats-helpers";
+import { getStatsValue, formatNumber } from '@/utils/stats-helpers'
 
-import { Status } from "./status";
-import { Statistics, StatsFromAPI } from "./statistics";
-import { toast } from "sonner";
+import { Status } from './status'
+import { Statistics, StatsFromAPI } from './statistics'
+import { toast } from 'sonner'
 
 interface ICheckerDataProps {
-  data: CheckerFile[];
-  onViewDetails?: (item: CheckerFile) => void;
-  totalCount: number;
-  currentPage: number;
-  pageSize: number;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (size: number) => void;
-  isLoading: boolean;
-  status: "error" | "success" | "pending";
-  queryKey?: any[];
+  data: CheckerFile[]
+  onViewDetails?: (item: CheckerFile) => void
+  totalCount: number
+  currentPage: number
+  pageSize: number
+  onPageChange: (page: number) => void
+  onPageSizeChange: (size: number) => void
+  isLoading: boolean
+  status: 'error' | 'success' | 'pending'
+  queryKey?: any[]
 }
 
 export function DataTableChecker({
@@ -104,73 +98,73 @@ export function DataTableChecker({
   isLoading,
   queryKey,
 }: ICheckerDataProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
+  const [openDeleteModal, setOpenDeleteModal] = useState(false)
 
   function bytesToMB(bytes: number): string {
-    if (!bytes || bytes === 0) return "0 MB";
-    const mb = bytes / (1024 * 1024);
-    return `${mb.toFixed(2)} MB`;
+    if (!bytes || bytes === 0) return '0 MB'
+    const mb = bytes / (1024 * 1024)
+    return `${mb.toFixed(2)} MB`
   }
 
   function isFileExpired(expiresAt: string): boolean {
-    if (!expiresAt) return false;
-    const expirationDate = new Date(expiresAt);
-    const now = new Date();
-    return now >= expirationDate;
+    if (!expiresAt) return false
+    const expirationDate = new Date(expiresAt)
+    const now = new Date()
+    return now >= expirationDate
   }
 
   function countDDDs(stats: any): number {
-    if (!stats || typeof stats !== "object") return 0;
-    if (stats.ddd && typeof stats.ddd === "object") {
-      return Object.keys(stats.ddd).length;
+    if (!stats || typeof stats !== 'object') return 0
+    if (stats.ddd && typeof stats.ddd === 'object') {
+      return Object.keys(stats.ddd).length
     }
-    return 0;
+    return 0
   }
 
   function countUFs(stats: any): number {
-    if (!stats || typeof stats !== "object") return 0;
-    if (stats.uf && typeof stats.uf === "object") {
-      return Object.keys(stats.uf).length;
+    if (!stats || typeof stats !== 'object') return 0
+    if (stats.uf && typeof stats.uf === 'object') {
+      return Object.keys(stats.uf).length
     }
-    return 0;
+    return 0
   }
 
   function handleDownload(fileUrl: string, fileName: string, expiresAt: string) {
-    if (!fileUrl) return;
-    
+    if (!fileUrl) return
+
     if (isFileExpired(expiresAt)) {
-      toast.error("O prazo para download deste arquivo expirou.");
-      return;
+      toast.error('O prazo para download deste arquivo expirou.')
+      return
     }
-    
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.download = fileName;
-    link.target = "_blank";
-    link.click();
+
+    const link = document.createElement('a')
+    link.href = fileUrl
+    link.download = fileName
+    link.target = '_blank'
+    link.click()
   }
 
   const columns: ColumnDef<CheckerFile>[] = [
     {
-      accessorKey: "original_file_name",
+      accessorKey: 'original_file_name',
       header: () => {
         return (
           <div className="flex items-center gap-2 w-20">
             <File size={16} className="stroke-[#8ac850]" />
             Arquivo
           </div>
-        );
+        )
       },
       cell: ({ row }) => {
-        const fileUrl = row.original.s3_url;
-        const fileName = row.getValue("original_file_name") as string;
-        const expiresAt = row.original.expires_at;
-        const expired = isFileExpired(expiresAt);
-        
+        const fileUrl = row.original.s3_url
+        const fileName = row.getValue('original_file_name') as string
+        const expiresAt = row.original.expires_at
+        const expired = isFileExpired(expiresAt)
+
         return (
           <div className="w-16">
             <TooltipProvider delayDuration={0.5}>
@@ -178,7 +172,7 @@ export function DataTableChecker({
                 <TooltipTrigger asChild>
                   <Button
                     type="button"
-                    variant={"link"}
+                    variant={'link'}
                     className="flex items-center gap-2"
                     onClick={() => handleDownload(fileUrl, fileName, expiresAt)}
                     disabled={expired}
@@ -187,49 +181,49 @@ export function DataTableChecker({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{expired ? "Arquivo expirado" : `Baixar ${fileName || "Arquivo"}`}</p>
+                  <p>{expired ? 'Arquivo expirado' : `Baixar ${fileName || 'Arquivo'}`}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-        );
+        )
       },
     },
     {
-      accessorKey: "file_size",
+      accessorKey: 'file_size',
       header: () => {
         return (
           <div className="flex items-center gap-2 w-14">
             <Ruler size={16} className="stroke-[#8ac850]" />
             MB
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
-          <p>{bytesToMB(row.getValue("file_size"))}</p>
+          <p>{bytesToMB(row.getValue('file_size'))}</p>
         </div>
       ),
     },
     {
-      accessorKey: "created_at",
+      accessorKey: 'created_at',
       header: () => {
         return (
           <div className="flex items-center gap-2 w-14">
             <Calendar size={16} className="stroke-[#8ac850]" />
             Data
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div>
           <p>
-            {new Date(row.getValue("created_at")).toLocaleString("pt-BR", {
-              year: "2-digit",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
+            {new Date(row.getValue('created_at')).toLocaleString('pt-BR', {
+              year: '2-digit',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
               second: undefined,
             })}
           </p>
@@ -237,144 +231,144 @@ export function DataTableChecker({
       ),
     },
     {
-      accessorKey: "upload",
+      accessorKey: 'upload',
       header: () => {
         return (
           <div className="flex items-center gap-2 w-20">
             <Upload size={16} className="stroke-[#8ac850]" />
             Upload
           </div>
-        );
+        )
       },
       cell: () => (
         <div className="text-center">
-          <p>{status === "success" ? "ok" : "erro"}</p>
+          <p>{status === 'success' ? 'ok' : 'erro'}</p>
         </div>
       ),
     },
     {
-      accessorKey: "status",
+      accessorKey: 'status',
       header: () => {
         return (
           <div className="flex items-center gap-2 w-16">
             <Loader2 size={16} className="stroke-[#8ac850]" />
             Status
           </div>
-        );
+        )
       },
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const fileId = row.original.id;
+        const status = row.getValue('status') as string
+        const fileId = row.original.id
 
-        return <Status status={status} fileId={fileId} queryKey={queryKey} />;
+        return <Status status={status} fileId={fileId} queryKey={queryKey} />
       },
     },
 
     {
-      accessorKey: "total",
+      accessorKey: 'total',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <FileText size={16} className="stroke-[#8ac850]" />
             Total
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "total"))}</p>
+          <p>{formatNumber(getStatsValue(row.original?.stats, 'total'))}</p>
         </div>
       ),
     },
     {
-      accessorKey: "invalid",
+      accessorKey: 'invalid',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <XCircle size={16} className="stroke-red-500" />
             Inválidos
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "invalid"))}</p>
+          <p>{formatNumber(getStatsValue(row.original?.stats, 'invalid'))}</p>
         </div>
       ),
     },
     {
-      accessorKey: "valid",
+      accessorKey: 'valid',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <CheckCircle size={16} className="stroke-[#8ac850]" />
             Válidos
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "valid"))}</p>
+          <p>{formatNumber(getStatsValue(row.original?.stats, 'valid'))}</p>
         </div>
       ),
     },
     {
-      accessorKey: "fixs",
+      accessorKey: 'fixs',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <Phone size={16} className="stroke-[#8ac850]" />
             Fixos
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "fixo"))}</p>
+          <p>{formatNumber(getStatsValue(row.original?.stats, 'fixo'))}</p>
         </div>
       ),
     },
     {
-      accessorKey: "moveis",
+      accessorKey: 'moveis',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <Smartphone size={16} className="stroke-[#8ac850]" />
             Móveis
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "movel"))}</p>
+          <p>{formatNumber(getStatsValue(row.original?.stats, 'movel'))}</p>
         </div>
       ),
     },
     {
-      accessorKey: "portate",
+      accessorKey: 'portate',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <ArrowDownUp size={16} className="stroke-[#8ac850]" />
             Portados
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "portado"))}</p>
+          <p>{formatNumber(getStatsValue(row.original?.stats, 'portado'))}</p>
         </div>
       ),
     },
     {
-      accessorKey: "uf",
+      accessorKey: 'uf',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <img src={iconBrasil} alt="Icone do Brasil" />
             UFs
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
@@ -382,31 +376,16 @@ export function DataTableChecker({
         </div>
       ),
     },
+
     {
-      accessorKey: "city",
-      header: () => {
-        return (
-          <div className="flex items-center gap-2">
-            <Building2 size={16} className="stroke-[#8ac850]" />
-            Cidades
-          </div>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="text-center">
-          <p>{formatNumber(getStatsValue(row.original?.stats, "city"))}</p>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "ddds",
+      accessorKey: 'ddds',
       header: () => {
         return (
           <div className="flex items-center gap-2">
             <Globe size={16} className="stroke-[#8ac850]" />
             DDDs
           </div>
-        );
+        )
       },
       cell: ({ row }) => (
         <div className="text-center">
@@ -416,12 +395,12 @@ export function DataTableChecker({
     },
 
     {
-      id: "actions",
-      header: "Ações",
+      id: 'actions',
+      header: 'Ações',
       enableHiding: false,
       cell: ({ row }) => {
-        const expired = isFileExpired(row.original.expires_at);
-        
+        const expired = isFileExpired(row.original.expires_at)
+
         return (
           <div className="flex items-center justify-end gap-2">
             <TooltipProvider delayDuration={0.5}>
@@ -429,9 +408,9 @@ export function DataTableChecker({
                 <TooltipTrigger>
                   <Button
                     type="button"
-                    variant={"outline"}
-                    size={"icon"}
-                    disabled={row.original.s3_url === ""}
+                    variant={'outline'}
+                    size={'icon'}
+                    disabled={row.original.s3_url === ''}
                     onClick={() => onViewDetails?.(row.original)}
                   >
                     <Eye size={16} />
@@ -444,11 +423,7 @@ export function DataTableChecker({
               <Tooltip>
                 <TooltipTrigger>
                   <Statistics
-                    stats={
-                      row.original?.stats
-                        ? (row.original.stats as StatsFromAPI)
-                        : undefined
-                    }
+                    stats={row.original?.stats ? (row.original.stats as StatsFromAPI) : undefined}
                     fileName={row.original.original_file_name}
                   />
                 </TooltipTrigger>
@@ -460,24 +435,22 @@ export function DataTableChecker({
                 <TooltipTrigger>
                   <Button
                     type="button"
-                    variant={"outline"}
-                    size={"icon"}
+                    variant={'outline'}
+                    size={'icon'}
                     className="bg-[#8ac850] hover:bg-[#5e8e33] dark:bg-[#8ac850] dark:hover:bg-[#5e8e33]"
                     disabled={!row.original.s3_url || expired}
                     onClick={() =>
                       handleDownload(
                         row.original.s3_url,
                         row.original.original_file_name,
-                        row.original.expires_at
+                        row.original.expires_at,
                       )
                     }
                   >
                     <Download size={16} className="stroke-white" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  {expired ? "Download expirado" : "Baixar planilha"}
-                </TooltipContent>
+                <TooltipContent>{expired ? 'Download expirado' : 'Baixar planilha'}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <TooltipProvider delayDuration={0.5}>
@@ -494,10 +467,10 @@ export function DataTableChecker({
               </Tooltip>
             </TooltipProvider>
           </div>
-        );
+        )
       },
     },
-  ];
+  ]
 
   const table = useReactTable({
     data,
@@ -521,7 +494,7 @@ export function DataTableChecker({
         pageSize: pageSize,
       },
     },
-  });
+  })
 
   return (
     <div className="w-full">
@@ -529,15 +502,9 @@ export function DataTableChecker({
         <div className="flex items-center gap-2 w-full">
           <Input
             placeholder="Filtrar por arquivo..."
-            value={
-              (table
-                .getColumn("original_file_name")
-                ?.getFilterValue() as string) ?? ""
-            }
+            value={(table.getColumn('original_file_name')?.getFilterValue() as string) ?? ''}
             onChange={(event) =>
-              table
-                .getColumn("original_file_name")
-                ?.setFilterValue(event.target.value)
+              table.getColumn('original_file_name')?.setFilterValue(event.target.value)
             }
             className="max-w-[250px]"
           />
@@ -561,25 +528,20 @@ export function DataTableChecker({
                       key={column.id}
                       className=""
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
                     >
                       {(() => {
                         const headerFromTable = table
                           .getHeaderGroups()
                           .flatMap((headerGroup) => headerGroup.headers)
-                          .find((h) => h.column.id === column.id);
+                          .find((h) => h.column.id === column.id)
 
                         return column.columnDef.header && headerFromTable
-                          ? flexRender(
-                              column.columnDef.header,
-                              headerFromTable.getContext()
-                            )
-                          : column.id;
+                          ? flexRender(column.columnDef.header, headerFromTable.getContext())
+                          : column.id
                       })()}
                     </DropdownMenuCheckboxItem>
-                  );
+                  )
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -595,18 +557,14 @@ export function DataTableChecker({
                     <TableHead
                       key={header.id}
                       className={`${
-                        header.column.columnDef.header === "Ações" &&
-                        "text-right"
+                        header.column.columnDef.header === 'Ações' && 'text-right'
                       } bg-background/95 backdrop-blur`}
                     >
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -614,26 +572,17 @@ export function DataTableChecker({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   Nenhum resultado.
                 </TableCell>
               </TableRow>
@@ -643,8 +592,7 @@ export function DataTableChecker({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} de {totalCount}{" "}
-          linha(s) no total.
+          {table.getFilteredSelectedRowModel().rows.length} de {totalCount} linha(s) no total.
         </div>
         <div className="flex w-full items-center gap-8 lg:w-fit">
           <div className="hidden items-center gap-2 lg:flex">
@@ -654,7 +602,7 @@ export function DataTableChecker({
             <Select
               value={`${pageSize}`}
               onValueChange={(value) => {
-                onPageSizeChange?.(Number(value));
+                onPageSizeChange?.(Number(value))
               }}
             >
               <SelectTrigger className="w-20" id="rows-per-page">
@@ -697,9 +645,7 @@ export function DataTableChecker({
               className="size-8"
               size="icon"
               onClick={() => onPageChange?.(currentPage + 1)}
-              disabled={
-                currentPage >= Math.ceil(totalCount / pageSize) || isLoading
-              }
+              disabled={currentPage >= Math.ceil(totalCount / pageSize) || isLoading}
             >
               <span className="sr-only">Próxima página</span>
               <ChevronRight />
@@ -709,9 +655,7 @@ export function DataTableChecker({
               className="hidden size-8 lg:flex"
               size="icon"
               onClick={() => onPageChange?.(Math.ceil(totalCount / pageSize))}
-              disabled={
-                currentPage >= Math.ceil(totalCount / pageSize) || isLoading
-              }
+              disabled={currentPage >= Math.ceil(totalCount / pageSize) || isLoading}
             >
               <span className="sr-only">Última página</span>
               <ChevronsRight />
@@ -720,5 +664,5 @@ export function DataTableChecker({
         </div>
       </div>
     </div>
-  );
+  )
 }
