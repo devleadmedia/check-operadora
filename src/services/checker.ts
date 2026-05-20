@@ -30,6 +30,7 @@ export interface CheckerFile {
   submitter: Submitter;
   check_type: string;
   original_file_name: string;
+  file_size?: number;
   s3_url: string;
   status: "completed" | "processing" | "failed";
   created_at: string;

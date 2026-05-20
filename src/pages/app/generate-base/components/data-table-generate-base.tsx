@@ -66,6 +66,7 @@ import { useGenerateBaseController, PhoneData } from '../controller'
 import { Controller } from 'react-hook-form'
 import { BRAZIL_STATES } from '@/utils/brazil-states.util'
 import { BRAZIL_DDD } from '@/utils/ddds.util'
+import { MultiSelect } from '@/components/muti-select'
 
 export function GenerateBaseTable() {
   const { hookForm, phoneData, hasGenerated, clearData } = useGenerateBaseController()
@@ -75,7 +76,6 @@ export function GenerateBaseTable() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
-
   // Watch tipo para habilitar/desabilitar UF e Cidades
   const tipoSelecionado = watch('type')
   const portate = watch('portate')
@@ -295,23 +295,16 @@ export function GenerateBaseTable() {
                 name="uf"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={tipoSelecionado !== 'fixo'}
-                  >
-                    <SelectTrigger id="uf" className="max-w-max">
-                      <SelectValue placeholder="UF" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      {BRAZIL_STATES?.map((state) => (
-                        <SelectItem key={state.label} value={state.value}>
-                          {state.value}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <MultiSelect
+                      options={BRAZIL_STATES}
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      placeholder="Selecione"
+                      searchPlaceholder="Buscar UFs..."
+                      className="max-w-xs"
+                    />
+                  </>
                 )}
               />
             </div>
@@ -351,19 +344,16 @@ export function GenerateBaseTable() {
                 name="ddd"
                 control={control}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="ddd" className="max-w-max">
-                      <SelectValue placeholder="DDD" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      {BRAZIL_DDD?.map((ddd) => (
-                        <SelectItem key={ddd.label} value={ddd.value}>
-                          {ddd.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <MultiSelect
+                      options={BRAZIL_DDD}
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                      placeholder="Selecione"
+                      searchPlaceholder="Buscar DDD..."
+                      className="max-w-xs"
+                    />
+                  </>
                 )}
               />
             </div>

@@ -86,6 +86,7 @@ export function Checker() {
             fileName={selectedItem?.original_file_name ?? ""}
             data={sheetData}
             stats={selectedItem?.stats}
+            fileSize={selectedItem?.file_size}
           />
         ) : (
           <div className="flex flex-col gap-6">

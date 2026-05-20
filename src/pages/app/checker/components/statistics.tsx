@@ -94,8 +94,9 @@ export function Statistics({ stats, fileName, fileSize }: PhoneStatsModalProps) 
   const [open, setOpen] = useState(false)
 
   const formatFileSize = (bytes?: number): string => {
-    if (!bytes) return '0 MB'
-    const mb = bytes / (1024 * 1024)
+    const size = Number(bytes)
+    if (!size || Number.isNaN(size)) return '—'
+    const mb = size / (1024 * 1024)
     return `${mb.toFixed(2)} MB`
   }
 

@@ -425,6 +425,7 @@ export function DataTableChecker({
                   <Statistics
                     stats={row.original?.stats ? (row.original.stats as StatsFromAPI) : undefined}
                     fileName={row.original.original_file_name}
+                    fileSize={row.original.file_size}
                   />
                 </TooltipTrigger>
                 <TooltipContent>Estatísticas</TooltipContent>

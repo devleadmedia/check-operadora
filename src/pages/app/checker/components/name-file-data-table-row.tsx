@@ -69,9 +69,10 @@ interface INameFileDataProps {
   data: SheetRow[]
   stats?: StatsFromAPI | object | null
   fileName: string
+  fileSize?: number
 }
 
-export function NameFileDataTableRow({ fileName, data, stats }: INameFileDataProps) {
+export function NameFileDataTableRow({ fileName, data, stats, fileSize }: INameFileDataProps) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -777,7 +778,11 @@ export function NameFileDataTableRow({ fileName, data, stats }: INameFileDataPro
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Statistics stats={stats ? (stats as StatsFromAPI) : undefined} fileName={fileName} />
+              <Statistics
+                stats={stats ? (stats as StatsFromAPI) : undefined}
+                fileName={fileName}
+                fileSize={fileSize}
+              />
               <Button
                 type="button"
                 variant={'outline'}
