@@ -60,12 +60,39 @@ function ChartTooltip({ active, payload }: ChartTooltipProps) {
   )
 }
 
-function renderPieLabel({ name, percent }: { name: string; percent: number }) {
+interface PieLabelRenderProps {
+  name?: string
+  percent?: number
+  x?: number
+  y?: number
+  textAnchor?: string
+}
+
+function renderPieLabel(props: PieLabelRenderProps) {
+  const { name = '', percent = 0, x = 0, y = 0, textAnchor = 'middle' } = props
   const percentage = percent * 100
-  if (percentage > 1) {
-    return `${name}: ${percentage.toFixed(2)}%`
+
+  if (percentage <= 1) {
+    return (
+      <text x={x} y={y} fill="transparent" textAnchor={textAnchor}>
+        {''}
+      </text>
+    )
   }
-  return null
+
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor={textAnchor}
+      dominantBaseline="central"
+      fill="hsl(var(--foreground))"
+      fontSize={12}
+      fontWeight={500}
+    >
+      {`${name}: ${percentage.toFixed(2)}%`}
+    </text>
+  )
 }
 
 function EmptyChart() {

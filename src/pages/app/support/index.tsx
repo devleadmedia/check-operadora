@@ -1,35 +1,35 @@
-import { useTheme } from "@/hooks/theme";
-import { useEffect, useState } from "react";
-import * as SupportService from "@/services/support.service";
+import { useTheme } from '@/hooks/theme'
+import { useEffect, useState } from 'react'
+import * as SupportService from '@/services/support.service'
 
 export function SupportPage() {
-  const [token, setToken] = useState<string>();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [rerender, setRerender] = useState<boolean>(true);
-  const { theme } = useTheme();
+  const [token, setToken] = useState<string>()
+  const [loading, setLoading] = useState<boolean>(false)
+  const [rerender, setRerender] = useState<boolean>(true)
+  const { theme } = useTheme()
 
   useEffect(() => {
     return () => {
-      fetchToken();
-    };
-  }, [token]);
+      fetchToken()
+    }
+  }, [token])
 
   useEffect(() => {
-    setRerender(false);
+    setRerender(false)
     setTimeout(() => {
-      setRerender(true);
-    }, 1);
-  }, [theme]);
+      setRerender(true)
+    }, 1)
+  }, [theme])
 
   async function fetchToken() {
     try {
-      setLoading(true);
-      const data = await SupportService.getTokenSupport();
-      setToken(data);
+      setLoading(true)
+      const data = await SupportService.getTokenSupport()
+      setToken(data)
     } catch (error) {
-      console.error("Erro ao buscar token:", error);
+      console.error('Erro ao buscar token:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -44,21 +44,19 @@ export function SupportPage() {
                 <small>Carregando...</small>
               </div>
             </div>
-            <small className="text-zinc-500">
-              Se a página não carregar, por favor atualize-a.
-            </small>
+            <small className="text-zinc-500">Se a página não carregar, por favor atualize-a.</small>
           </div>
         ) : (
           rerender && (
             <iframe
               className="border-none h-[calc(100vh-210px)] w-full"
               src={`https://backoffice-suporte.vercel.app/#/solicitation?token=${token}&theme=${
-                theme == "dark" ? "dark" : "light"
+                theme === 'dark' ? 'dark' : 'light'
               }`}
             />
           )
         )}
       </div>
     </>
-  );
+  )
 }

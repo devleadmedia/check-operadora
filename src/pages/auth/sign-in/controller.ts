@@ -1,77 +1,52 @@
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { z } from "zod";
-import { toast } from "sonner";
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { z } from 'zod'
+import { toast } from 'sonner'
+import { AxiosError } from 'axios'
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { Login } from "@/services/login";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+
+import { useAuth } from '@/contexts/auth'
 
 const signInSchema = z.object({
-  email: z.string().min(1, "Preencha esse campo.").email("E-mail inválido."),
-  password: z.string().min(8, "Campo senha deve ter no mínimo 8 caracteres."),
-});
+  email: z.string().min(1, 'Preencha esse campo.').email('E-mail inválido.'),
+  password: z.string().min(8, 'Campo senha deve ter no mínimo 8 caracteres.'),
+})
 
-type signInForm = z.infer<typeof signInSchema>;
+type SignInForm = z.infer<typeof signInSchema>
 
 export function useSignInController() {
+  const navigate = useNavigate()
+  const { signIn } = useAuth()
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
-  } = useForm<signInForm>({
+    resetField,
+  } = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-  });
+  })
 
-  const navigate = useNavigate();
-  const login = new Login();
-
-  const {
-    data,
-    mutateAsync: signInFn,
-    isPending: isLoading,
-    isSuccess,
-  } = useMutation({
-    mutationFn: async (payload: signInForm) => {
-      const response = await login.signIn(payload);
-
-      return response;
+  const { mutateAsync: signInFn, isPending: isLoading } = useMutation({
+    mutationFn: signIn,
+    onSuccess: () => {
+      navigate('/', { replace: true })
     },
-    onSuccess: async (response) => {
-      if (response) {
-        localStorage.setItem(
-          "@check_operadora:user",
-          JSON.stringify(response.user)
-        );
-        localStorage.setItem("@check_operadora:token", response.access_token);
-        localStorage.setItem(
-          "@check_operadora:refresh_token",
-          response.refresh_token
-        );
-
-        toast.success("Login efetuado com sucesso!");
-
-        setTimeout(() => {
-          navigate("/");
-          window.location.reload();
-        }, 3000);
-      }
+    onError: (error: AxiosError<{ message?: string }>) => {
+      const message = error.response?.data?.message ?? 'Credenciais inválidas!'
+      toast.error(message)
+      resetField('password')
     },
-    onError: async (response) => {
-      if (response) {
-        toast.error(response.message || "Credênciais invalidas!");
-        reset();
-      }
-    },
-  });
+  })
 
-  async function onSubmit(payload: signInForm) {
-    await signInFn(payload);
+  async function onSubmit(payload: SignInForm) {
+    await signInFn(payload)
   }
 
   return {
@@ -83,8 +58,6 @@ export function useSignInController() {
     signInResponse: {
       mutate: onSubmit,
       isLoading,
-      isSuccess,
-      data,
     },
-  };
+  }
 }

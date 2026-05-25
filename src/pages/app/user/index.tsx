@@ -28,14 +28,16 @@ import { AddCredit } from "@/pages/app/user/components/add-credit-modal";
 import { BreadCrumbRoutes } from "@/components/breadcrumb";
 import { useUsers } from "@/hooks/user-users";
 import { DeleteUser } from "./components/delete-user-modal";
-import { role } from "@/utils/data-user";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { moneyFormat } from "@/utils/money.util";
+import { useAuth } from "@/contexts/auth";
+import { Roles } from "@/enums/Roles.enum";
 
 export function User() {
   const { listUsers, setPage, pageSize } = useUsers();
   const { listUsersData, isLoadingListUsers } = listUsers;
+  const { user } = useAuth();
 
   const currentPage = listUsersData?.page ?? 1;
   const totalCount = listUsersData?.total_items ?? 10;
@@ -57,7 +59,7 @@ export function User() {
       <header className="flex items-center justify-between">
         <BreadCrumbRoutes />
 
-        {role === "admin" && <CreateUser />}
+        {user?.role === Roles.admin && <CreateUser />}
       </header>
 
       <Table className="mt-20">

@@ -1,31 +1,23 @@
-import { LinksHeader } from "./components/links";
-import { Profile } from "@/pages/app/profile";
-import Logo from "@/assets/checkoperadora.png";
-import { useHeaderController } from "./controller";
-import { Bell, Loader2, Server } from "lucide-react";
-import { useSignInController } from "@/pages/auth/sign-in/controller";
-import { Button } from "../ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
-import { usePageNavigation } from "@/hooks/use-pages-navigation";
-import { NavigationHoverCard } from "./components/navigation-hover-card";
-import { Badge } from "../ui/badge";
-import { moneyFormat } from "@/utils/money.util";
-import { useCredits } from "@/hooks/use-credits";
+import { LinksHeader } from './components/links'
+import { Profile } from '@/pages/app/profile'
+import Logo from '@/assets/checkoperadora.png'
+import { useHeaderController } from './controller'
+import { Loader2, Server } from 'lucide-react'
+import { usePageNavigation } from '@/hooks/use-pages-navigation'
+import { NavigationHoverCard } from './components/navigation-hover-card'
+import { Badge } from '../ui/badge'
+import { moneyFormat } from '@/utils/money.util'
+import { useCredits } from '@/hooks/use-credits'
+import { useAuth } from '@/contexts/auth'
 
 export function Header() {
-  const { signInResponse } = useSignInController();
-  const { userData, route } = useHeaderController();
-  const { navigate } = route;
-  const { user } = userData;
-  const { isLoading: isLoadingUser } = signInResponse;
+  const { userData, route } = useHeaderController()
+  const { navigate } = route
+  const { user } = userData
+  const { isBootstrapping } = useAuth()
 
   const { credits } = useCredits()
-  const { navigationLinks, apiSubmenus, isRouteActive } = usePageNavigation(); 
+  const { navigationLinks, apiSubmenus, isRouteActive } = usePageNavigation()
 
   return (
     <header className="bg-card shadow-md fixed w-full z-50">
@@ -38,8 +30,8 @@ export function Header() {
           <div className="flex-1 overflow-x-auto scrollbar-hide">
             <div className="flex items-center justify-center gap-1 min-w-max px-2">
               {navigationLinks.map((link, index) => {
-                const IconComponent = link.icon;
-                const isActive = isRouteActive(link.route, location.pathname);
+                const IconComponent = link.icon
+                const isActive = isRouteActive(link.route, location.pathname)
 
                 return (
                   <div key={link.route} className="flex items-center gap-1">
@@ -53,14 +45,11 @@ export function Header() {
                           size={16}
                           className={`flex-shrink-0 transition-colors duration-200 ${
                             isActive
-                              ? "text-[#aa71ff]"
-                              : "text-zinc-600 dark:text-zinc-300 group-hover:text-[#aa71ff]"
+                              ? 'text-[#aa71ff]'
+                              : 'text-zinc-600 dark:text-zinc-300 group-hover:text-[#aa71ff]'
                           }`}
                         />
-                        <LinksHeader
-                          nameLink={link.nameLink}
-                          route={link.route}
-                        />
+                        <LinksHeader nameLink={link.nameLink} route={link.route} />
                       </div>
                     </div>
 
@@ -72,16 +61,16 @@ export function Header() {
                             <Server
                               size={16}
                               className={`flex-shrink-0 transition-colors duration-200 ${
-                                isRouteActive("/api", location.pathname)
-                                  ? "text-[#aa71ff]"
-                                  : "text-zinc-600 dark:text-zinc-300 group-hover:text-[#aa71ff]"
+                                isRouteActive('/api', location.pathname)
+                                  ? 'text-[#aa71ff]'
+                                  : 'text-zinc-600 dark:text-zinc-300 group-hover:text-[#aa71ff]'
                               }`}
                             />
                             <span
                               className={`text-[10px] lg:text-xs font-bold whitespace-nowrap transition-colors ${
-                                isRouteActive("/api", location.pathname)
-                                  ? "text-[#aa71ff]"
-                                  : "text-zinc-700 dark:text-white group-hover:text-[#aa71ff]"
+                                isRouteActive('/api', location.pathname)
+                                  ? 'text-[#aa71ff]'
+                                  : 'text-zinc-700 dark:text-white group-hover:text-[#aa71ff]'
                               }`}
                             >
                               API
@@ -91,14 +80,14 @@ export function Header() {
                       </NavigationHoverCard>
                     )}
                   </div>
-                );
+                )
               })}
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-1">
-          {isLoadingUser ? (
+          {isBootstrapping ? (
             <>
               <div className="flex items-center gap-1 animate-pulse">
                 <Loader2 size={16} className="animate-spin" />
@@ -110,28 +99,10 @@ export function Header() {
               <Badge variant="default">{moneyFormat(credits)}</Badge>
 
               <Profile userData={user} />
-
-              <TooltipProvider delayDuration={0.5}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant={"ghost"}
-                      size={"icon"}
-                      className="h-12 w-24 dark:hover:bg-white/10"
-                    >
-                      <Bell size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent asChild>
-                    <p>Notificações</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
           )}
         </div>
       </div>
     </header>
-  );
+  )
 }

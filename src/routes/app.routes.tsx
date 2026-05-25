@@ -9,12 +9,13 @@ import { GenerateBase } from "@/pages/app/generate-base";
 import { HistoricApi } from "@/pages/app/historic-api";
 import { SupportPage } from "@/pages/app/support";
 import { StatementPage } from "@/pages/app/statement/statementPage";
-import { role } from "@/utils/data-user";
 import { Roles } from "@/enums/Roles.enum";
 import { useCredits } from "@/hooks/use-credits";
+import { useAuth } from "@/contexts/auth";
 
 export function AppRoutes() {
   useCredits();
+  const { user } = useAuth();
 
   return (
     <div className="flex flex-col">
@@ -30,7 +31,7 @@ export function AppRoutes() {
             <Route path="/api/documentacao" element={<HistoricApi />} />
             <Route path="/api/historico" element={<HistoricApi />} />
 
-            {role == Roles.admin && (
+            {user?.role === Roles.admin && (
               <Route path="/usuarios" element={<User />} />
             )}
             <Route path="/perfil" element={<UserProfile />} />

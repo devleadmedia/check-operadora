@@ -9,6 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Loader, Trash } from "lucide-react";
 import { useDeleteController } from "../controllers/delete-controller";
 import { toast } from "sonner";
@@ -18,6 +24,7 @@ interface IFileId {
   onOpen: boolean;
   onClose: () => void;
   setOpen: (value: boolean) => void;
+  tooltip?: string;
 }
 
 export function ConfirmedDeleteChecker({
@@ -25,6 +32,7 @@ export function ConfirmedDeleteChecker({
   onClose,
   onOpen,
   setOpen,
+  tooltip,
 }: IFileId) {
   const { deleteFileFn, isPending } = useDeleteController();
 
@@ -43,13 +51,26 @@ export function ConfirmedDeleteChecker({
   );
   const isLoadingText = isPending ? "Confirmando" : "Confirmar";
 
+  const triggerButton = (
+    <Button variant="outline" size={"icon"} onClick={() => setOpen(true)}>
+      <Trash size={16} />
+    </Button>
+  );
+
   return (
     <Dialog open={onOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size={"icon"} onClick={() => setOpen(true)}>
-          <Trash size={16} />
-        </Button>
-      </DialogTrigger>
+      {tooltip ? (
+        <TooltipProvider delayDuration={0.5}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>{triggerButton}</DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>{tooltip}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <DialogTrigger asChild>{triggerButton}</DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Deletar arquivo</DialogTitle>

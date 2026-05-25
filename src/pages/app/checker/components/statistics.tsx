@@ -7,6 +7,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { AlignEndHorizontal } from 'lucide-react'
 
 import { buildPhoneStatsData, type StatsFromAPI } from './statistics-data'
@@ -18,6 +24,7 @@ interface PhoneStatsModalProps {
   stats?: StatsFromAPI | object | null
   fileName?: string
   fileSize?: number
+  tooltip?: string
 }
 
 function formatFileSize(bytes?: number): string {
@@ -27,7 +34,7 @@ function formatFileSize(bytes?: number): string {
   return `${mb.toFixed(2)} MB`
 }
 
-export function Statistics({ stats, fileName, fileSize }: PhoneStatsModalProps) {
+export function Statistics({ stats, fileName, fileSize, tooltip }: PhoneStatsModalProps) {
   const [open, setOpen] = useState(false)
 
   const statsTyped = stats as StatsFromAPI
@@ -36,13 +43,26 @@ export function Statistics({ stats, fileName, fileSize }: PhoneStatsModalProps) 
   const temMoveis = (statsTyped?.movel || 0) > 0
   const temFixos = (statsTyped?.fixo || 0) > 0
 
+  const triggerButton = (
+    <Button type="button" variant={'outline'} size={'icon'}>
+      <AlignEndHorizontal size={16} />
+    </Button>
+  )
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" variant={'outline'} size={'icon'}>
-          <AlignEndHorizontal size={16} />
-        </Button>
-      </DialogTrigger>
+      {tooltip ? (
+        <TooltipProvider delayDuration={0.5}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>{triggerButton}</DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>{tooltip}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <DialogTrigger asChild>{triggerButton}</DialogTrigger>
+      )}
       <DialogContent className="max-h-[90vh] max-w-7xl overflow-y-auto">
         <DialogHeader>
           <div className="mt-4 flex flex-col gap-2">
@@ -120,10 +140,6 @@ export function Statistics({ stats, fileName, fileSize }: PhoneStatsModalProps) 
                 <ChartCard title="Top Operadoras Receptoras">
                   <StatsPieChart data={statsData.operadorasReceptorasMoveis} render={temMoveis} />
                 </ChartCard>
-
-                <ChartCard title="Fidelidade">
-                  <StatsPieChart data={statsData.fidelidadeMoveis} render={temMoveis} />
-                </ChartCard>
               </div>
 
               {/* Fixos */}
@@ -172,10 +188,6 @@ export function Statistics({ stats, fileName, fileSize }: PhoneStatsModalProps) 
 
                 <ChartCard title="Top Operadoras Receptoras">
                   <StatsPieChart data={statsData.operadorasReceptorasFixos} render={temFixos} />
-                </ChartCard>
-
-                <ChartCard title="Fidelidade">
-                  <StatsPieChart data={statsData.fidelidadeFixos} render={temFixos} />
                 </ChartCard>
               </div>
             </div>

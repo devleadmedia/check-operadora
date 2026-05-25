@@ -1,13 +1,13 @@
+import { useCallback } from "react";
 import { toast } from "sonner";
 
-export function LogOut() {
-  localStorage.removeItem("@check_operadora:token");
-  localStorage.removeItem("@check_operadora:user");
+import { useAuth } from "@/contexts/auth";
 
-  toast.info("Saindo...");
+export function useLogOut() {
+  const { signOut } = useAuth();
 
-  setTimeout(() => {
-    window.location.reload();
-    window.location.href = "/";
-  }, 2000);
+  return useCallback(async () => {
+    toast.info("Saindo...");
+    await signOut();
+  }, [signOut]);
 }

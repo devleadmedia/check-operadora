@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Save, Eye, EyeOff } from "lucide-react";
 
+import { useAuth } from "@/contexts/auth";
+
 export default function UserProfile() {
   const [showPassword, setShowPassword] = useState(false);
-
-  const getUserData = localStorage.getItem("@check_operadora:user");
-  const formatUserData = getUserData && JSON.parse(getUserData);
+  const { user } = useAuth();
 
   return (
     <div className="container max-w-2xl mx-auto py-8 px-4">
@@ -22,9 +22,9 @@ export default function UserProfile() {
         <CardContent className="space-y-6">
           <div className="flex items-center gap-4">
             <div>
-              <p className="font-medium">{formatUserData.name}</p>
+              <p className="font-medium">{user?.name ?? ""}</p>
               <p className="text-sm text-muted-foreground">
-                {formatUserData.email}
+                {user?.email ?? ""}
               </p>
             </div>
           </div>
@@ -37,12 +37,16 @@ export default function UserProfile() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome</Label>
-                <Input id="name" value={formatUserData.name} />
+                <Input id="name" defaultValue={user?.name ?? ""} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formatUserData.email} />
+                <Input
+                  id="email"
+                  type="email"
+                  defaultValue={user?.email ?? ""}
+                />
               </div>
             </div>
           </div>

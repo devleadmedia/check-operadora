@@ -1,14 +1,6 @@
-import { useNavigate } from "react-router-dom";
-import {
-  LogOut as IconLogOut,
-  User,
-  Settings,
-  CreditCard,
-  List,
-  Landmark,
-  Headset,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom'
+import { LogOut as IconLogOut, User, Settings, List, Headset, Landmark } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,25 +9,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 
-import { ModeToggle } from "@/components/mode-toggle";
-import { IUserResponse } from "@/services/login";
+import { ModeToggle } from '@/components/mode-toggle'
+import type { IUser } from '@/interfaces/user/IUser.type'
 
-import { LogOut } from "@/components/log-out";
-import { Roles } from "@/enums/Roles.enum";
-import { role } from "@/utils/data-user";
+import { useLogOut } from '@/components/log-out'
+import { Roles } from '@/enums/Roles.enum'
+import { useAuth } from '@/contexts/auth'
 
 interface IUserDataProps {
-  userData: IUserResponse;
+  userData: IUser | null
 }
 
 export function Profile({ userData }: IUserDataProps) {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const logOut = useLogOut()
+  const { user } = useAuth()
 
-  function handleLogOut() {
-    navigate("/");
-    LogOut();
+  async function handleLogOut() {
+    await logOut()
+    navigate('/', { replace: true })
   }
 
   return (
@@ -48,10 +42,10 @@ export function Profile({ userData }: IUserDataProps) {
           <div className="flex items-center gap-3 w-full">
             <div className="flex flex-col items-start min-w-0 flex-1">
               <span className="text-sm font-medium text-foreground truncate">
-                {userData?.name ?? "Usuário"}
+                {userData?.name ?? 'Usuário'}
               </span>
               <span className="text-xs text-muted-foreground truncate">
-                {userData?.email ?? "example@email.com"}
+                {userData?.email ?? 'example@email.com'}
               </span>
             </div>
 
@@ -65,10 +59,10 @@ export function Profile({ userData }: IUserDataProps) {
           <div className="flex items-center gap-3">
             <div className="flex flex-col min-w-0 flex-1">
               <p className="text-sm font-medium text-foreground truncate">
-                {userData?.name ?? "Usuário"}
+                {userData?.name ?? 'Usuário'}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                {userData?.email ?? "example@email.com"}
+                {userData?.email ?? 'example@email.com'}
               </p>
             </div>
           </div>
@@ -77,36 +71,25 @@ export function Profile({ userData }: IUserDataProps) {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => navigate("/perfil")}
-          >
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/perfil')}>
             <User className="mr-2 h-4 w-4" />
             <span>Perfil</span>
           </DropdownMenuItem>
-          {role == Roles.admin && (
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => navigate("/usuarios")}
-            >
+          {user?.role === Roles.admin && (
+            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/usuarios')}>
               <List className="mr-2 h-4 w-4" />
               <span>Usuários</span>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => navigate("/support")}
-          >
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/support')}>
             <Headset className="mr-2 h-4 w-4" />
             <span>Suporte</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer">
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Meus créditos</span>
-          </DropdownMenuItem>
+
           <DropdownMenuItem
             className="cursor-pointer"
-            onClick={() => navigate("/extrato")}
+            onClick={() => navigate('/extrato')}
+            disabled
           >
             <Landmark className="mr-2 h-4 w-4" />
             <span>Meu Extrato</span>
@@ -133,5 +116,5 @@ export function Profile({ userData }: IUserDataProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

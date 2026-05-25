@@ -405,7 +405,7 @@ export function DataTableChecker({
           <div className="flex items-center justify-end gap-2">
             <TooltipProvider delayDuration={0.5}>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     type="button"
                     variant={'outline'}
@@ -419,21 +419,15 @@ export function DataTableChecker({
                 <TooltipContent>Detalhes</TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            <Statistics
+              stats={row.original?.stats ? (row.original.stats as StatsFromAPI) : undefined}
+              fileName={row.original.original_file_name}
+              fileSize={row.original.file_size}
+              tooltip="Estatísticas"
+            />
             <TooltipProvider delayDuration={0.5}>
               <Tooltip>
-                <TooltipTrigger>
-                  <Statistics
-                    stats={row.original?.stats ? (row.original.stats as StatsFromAPI) : undefined}
-                    fileName={row.original.original_file_name}
-                    fileSize={row.original.file_size}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>Estatísticas</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider delayDuration={0.5}>
-              <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     type="button"
                     variant={'outline'}
@@ -454,19 +448,13 @@ export function DataTableChecker({
                 <TooltipContent>{expired ? 'Download expirado' : 'Baixar planilha'}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <TooltipProvider delayDuration={0.5}>
-              <Tooltip>
-                <TooltipTrigger>
-                  <ConfirmedDeleteChecker
-                    onClose={() => setOpenDeleteModal(false)}
-                    onOpen={openDeleteModal}
-                    setOpen={setOpenDeleteModal}
-                    fileId={row.original.id}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>Excluir</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <ConfirmedDeleteChecker
+              onClose={() => setOpenDeleteModal(false)}
+              onOpen={openDeleteModal}
+              setOpen={setOpenDeleteModal}
+              fileId={row.original.id}
+              tooltip="Excluir"
+            />
           </div>
         )
       },
