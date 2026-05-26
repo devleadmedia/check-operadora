@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 
 import {
   Dialog,
@@ -8,32 +8,35 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, User, UserPlus } from "lucide-react";
-import { useUserController } from "../controller/use-create-user-controller";
-import { InputMessage } from "@/components/input-message";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Eye, Loader2, User, UserPlus } from 'lucide-react'
+import { useUserController } from '../controller/use-create-user-controller'
+import { InputMessage } from '@/components/input-message'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Roles } from "@/enums/Roles.enum";
+} from '@/components/ui/select'
+import { Roles } from '@/enums/Roles.enum'
+import { useState } from 'react'
+import { EyeClosedIcon } from '@radix-ui/react-icons'
 
 export function CreateUser() {
-  const { hookForm, mutate, isOpen, setIsOpen } = useUserController();
-  const { isLoadingCreateUser } = mutate.create;
+  const [showPassword, setShowPassword] = useState<'show' | 'hide'>('hide')
+  const { hookForm, mutate, isOpen, setIsOpen } = useUserController()
+  const { isLoadingCreateUser } = mutate.create
   const { register, errors, handleSubmit, onSubmit, nameButtonCreateNewUser, watch, setValue } =
-    hookForm.create;
+    hookForm.create
 
   const isCreatingUser = isLoadingCreateUser ? (
     <Loader2 size={16} className="animate-spin" />
   ) : (
     <User size={16} />
-  );
+  )
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -50,10 +53,7 @@ export function CreateUser() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-4 py-4">
             <div className="grid col-span-2 items-start gap-2">
-              <Label
-                htmlFor="name"
-                className="text-start flex items-center gap-2"
-              >
+              <Label htmlFor="name" className="text-start flex items-center gap-2">
                 Nome:
                 {errors.name && <InputMessage message={errors.name.message} />}
               </Label>
@@ -61,73 +61,78 @@ export function CreateUser() {
                 type="text"
                 id="name"
                 placeholder="Nome"
-                className={`col-span-3 ${errors.name &&
-                  "border border-red-400 placeholder:text-red-300"
-                  }`}
-                {...register("name")}
+                className={`col-span-3 ${
+                  errors.name && 'border border-red-400 placeholder:text-red-300'
+                }`}
+                {...register('name')}
               />
             </div>
             <div className="grid grid-cols-1 items-center gap-2">
-              <Label
-                htmlFor="email"
-                className="text-start flex items-center gap-2"
-              >
+              <Label htmlFor="email" className="text-start flex items-center gap-2">
                 E-mail:
-                {errors.email && (
-                  <InputMessage message={errors.email.message} />
-                )}
+                {errors.email && <InputMessage message={errors.email.message} />}
               </Label>
               <Input
                 type="email"
                 id="email"
                 placeholder="E-mail"
-                className={`col-span-3 ${errors.email &&
-                  "border border-red-400 placeholder:text-red-300"
-                  }`}
-                {...register("email")}
+                className={`col-span-3 ${
+                  errors.email && 'border border-red-400 placeholder:text-red-300'
+                }`}
+                {...register('email')}
               />
             </div>
             <div className="grid grid-cols-1 items-center gap-2">
-              <Label
-                htmlFor="password"
-                className="text-start flex items-center gap-2"
-              >
+              <Label htmlFor="password" className="text-start flex items-center gap-2">
                 Senha:
-                {errors.password && (
-                  <InputMessage message={errors.password.message} />
-                )}
+                {errors.password && <InputMessage message={errors.password.message} />}
               </Label>
-              <Input
-                type="password"
-                id="password"
-                placeholder="Senha"
-                className={`col-span-3 ${errors.password &&
-                  "border border-red-400 placeholder:text-red-300"
+              <div className="flex items-center gap-2">
+                <Input
+                  type={showPassword === 'hide' ? 'password' : 'text'}
+                  id="password"
+                  placeholder="Senha"
+                  className={`col-span-3 ${
+                    errors.password && 'border border-red-400 placeholder:text-red-300'
                   }`}
-                {...register("password")}
-              />
+                  {...register('password')}
+                />
+                {showPassword === 'hide' ? (
+                  <Button
+                    type="button"
+                    variant={'outline'}
+                    size={'icon'}
+                    onClick={() => setShowPassword('show')}
+                  >
+                    <Eye />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant={'outline'}
+                    size={'icon'}
+                    onClick={() => setShowPassword('hide')}
+                  >
+                    <EyeClosedIcon />
+                  </Button>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-1 items-center gap-2">
-              <Label
-                htmlFor="role"
-                className="text-start flex items-center gap-2"
-              >
+              <Label htmlFor="role" className="text-start flex items-center gap-2">
                 Tipo de Usuário:
-                {errors.role && (
-                  <InputMessage message={errors.role.message} />
-                )}
+                {errors.role && <InputMessage message={errors.role.message} />}
               </Label>
               <Select
-                value={watch("role")}
-                onValueChange={(value) => setValue("role", value as Roles)}
+                value={watch('role')}
+                onValueChange={(value) => setValue('role', value as Roles)}
               >
-                <SelectTrigger
-                  className={errors.role ? "border border-red-400" : ""}
-                >
+                <SelectTrigger className={errors.role ? 'border border-red-400' : ''}>
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={Roles.user}>Usuário</SelectItem>
+                  <SelectItem value={Roles.manager}>Gerente</SelectItem>
                   <SelectItem value={Roles.admin}>Administrador</SelectItem>
                 </SelectContent>
               </Select>
@@ -140,7 +145,7 @@ export function CreateUser() {
             <Button
               className="flex items-center gap-1"
               type="submit"
-              variant={"default"}
+              variant={'default'}
               disabled={isLoadingCreateUser}
             >
               {isCreatingUser}
@@ -150,5 +155,5 @@ export function CreateUser() {
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

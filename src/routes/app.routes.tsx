@@ -1,21 +1,22 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from 'react-router-dom'
 
-import { Header } from "@/components/header";
-import { User } from "@/pages/app/user";
-import { Checker } from "@/pages/app/checker";
-import UserProfile from "@/pages/app/profile/components/user-profile";
-import { Footer } from "@/components/footer";
-import { GenerateBase } from "@/pages/app/generate-base";
-import { HistoricApi } from "@/pages/app/historic-api";
-import { SupportPage } from "@/pages/app/support";
-import { StatementPage } from "@/pages/app/statement/statementPage";
-import { Roles } from "@/enums/Roles.enum";
-import { useCredits } from "@/hooks/use-credits";
-import { useAuth } from "@/contexts/auth";
+import { Header } from '@/components/header'
+import { User } from '@/pages/app/user'
+import { Checker } from '@/pages/app/checker'
+import UserProfile from '@/pages/app/profile/components/user-profile'
+import { Footer } from '@/components/footer'
+import { GenerateBase } from '@/pages/app/generate-base'
+import { HistoricApi } from '@/pages/app/historic-api'
+import { SupportPage } from '@/pages/app/support'
+import { StatementPage } from '@/pages/app/statement/statementPage'
+import { MyCredits } from '@/pages/app/my-credits'
+import { Roles } from '@/enums/Roles.enum'
+import { useCredits } from '@/hooks/use-credits'
+import { useAuth } from '@/contexts/auth'
 
 export function AppRoutes() {
-  useCredits();
-  const { user } = useAuth();
+  useCredits()
+  const { user } = useAuth()
 
   return (
     <div className="flex flex-col">
@@ -31,13 +32,12 @@ export function AppRoutes() {
             <Route path="/api/documentacao" element={<HistoricApi />} />
             <Route path="/api/historico" element={<HistoricApi />} />
 
-            {user?.role === Roles.admin && (
-              <Route path="/usuarios" element={<User />} />
-            )}
+            {user?.role === Roles.admin && <Route path="/usuarios" element={<User />} />}
             <Route path="/perfil" element={<UserProfile />} />
             <Route path="/checker" element={<Checker />} />
             <Route path="/gerar-base" element={<GenerateBase />} />
             <Route path="/support" element={<SupportPage />} />
+            <Route path="/meus-creditos" element={<MyCredits />} />
             <Route path="/extrato" element={<StatementPage />} />
             <Route path="*" element={<p>Página não encontrada.</p>} />
           </Routes>
@@ -45,5 +45,5 @@ export function AppRoutes() {
       </main>
       <Footer />
     </div>
-  );
+  )
 }

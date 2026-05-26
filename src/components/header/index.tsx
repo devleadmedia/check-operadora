@@ -9,21 +9,23 @@ import { Badge } from '../ui/badge'
 import { moneyFormat } from '@/utils/money.util'
 import { useCredits } from '@/hooks/use-credits'
 import { useAuth } from '@/contexts/auth'
+import { Link } from 'react-router-dom'
 
 export function Header() {
   const { userData, route } = useHeaderController()
+  const { isBootstrapping } = useAuth()
+  const { credits, isLoading } = useCredits()
+  const { navigationLinks, apiSubmenus, isRouteActive } = usePageNavigation()
   const { navigate } = route
   const { user } = userData
-  const { isBootstrapping } = useAuth()
-
-  const { credits } = useCredits()
-  const { navigationLinks, apiSubmenus, isRouteActive } = usePageNavigation()
 
   return (
     <header className="bg-card shadow-md fixed w-full z-50">
       <div className="flex justify-between items-center w-full max-w-[95%] mx-auto py-3 px-3">
         <div className="flex items-end justify-start flex-row gap-5">
-          <img className="w-52" src={Logo} alt="Check Operadora" />
+          <Link to={'/'}>
+            <img className="w-52" src={Logo} alt="Check Operadora" />
+          </Link>
         </div>
 
         <div className="flex flex-1 mx-4 min-w-0">
@@ -96,7 +98,11 @@ export function Header() {
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <Badge variant="default">{moneyFormat(credits)}</Badge>
+              {isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Badge variant="default">{moneyFormat(credits)}</Badge>
+              )}
 
               <Profile userData={user} />
             </div>

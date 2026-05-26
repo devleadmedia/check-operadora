@@ -6,11 +6,11 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { CreditMovementType } from "@/enums/CreditMovementType.enum";
-import { IStatement } from "@/interfaces/statement/IStatement.type";
+import { IStatementMovement } from "@/interfaces/statement/IStatement.type";
 import { moneyFormat } from "@/utils/money.util";
 
 interface StatementCardProps {
-  statement: IStatement;
+  statement: IStatementMovement;
 }
 
 export function StatementCard({ statement }: StatementCardProps): JSX.Element {

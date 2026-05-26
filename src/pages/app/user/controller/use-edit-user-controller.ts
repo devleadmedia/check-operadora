@@ -17,7 +17,7 @@ const editUserSchema = z.object({
       (val) => !val || val.length >= 8,
       "Senha deve ter no mínimo 8 caracteres"
     ),
-  role: z.enum([Roles.admin, Roles.user]),
+  role: z.enum([Roles.admin, Roles.manager, Roles.user]),
 });
 
 type editUserForm = z.infer<typeof editUserSchema>;

@@ -11,7 +11,7 @@ const createUserSchema = z.object({
   name: z.string().min(3, "Campo nome deve ter no minimo 3 caracteres!"),
   email: z.email("E-mail invalido!"),
   password: z.string().min(8, "Campo senha deve ter no  minimo 8 caracteres!"),
-  role: z.enum([Roles.admin, Roles.user]),
+  role: z.enum([Roles.admin, Roles.manager, Roles.user]),
 });
 
 type createUserForm = z.infer<typeof createUserSchema>;

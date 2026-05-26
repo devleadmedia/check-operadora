@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { LogOut as IconLogOut, User, Settings, List, Headset, Landmark } from 'lucide-react'
+import { LogOut as IconLogOut, User, Settings, List, Headset, Landmark, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -16,7 +16,6 @@ import type { IUser } from '@/interfaces/user/IUser.type'
 
 import { useLogOut } from '@/components/log-out'
 import { Roles } from '@/enums/Roles.enum'
-import { useAuth } from '@/contexts/auth'
 
 interface IUserDataProps {
   userData: IUser | null
@@ -25,7 +24,6 @@ interface IUserDataProps {
 export function Profile({ userData }: IUserDataProps) {
   const navigate = useNavigate()
   const logOut = useLogOut()
-  const { user } = useAuth()
 
   async function handleLogOut() {
     await logOut()
@@ -75,7 +73,7 @@ export function Profile({ userData }: IUserDataProps) {
             <User className="mr-2 h-4 w-4" />
             <span>Perfil</span>
           </DropdownMenuItem>
-          {user?.role === Roles.admin && (
+          {userData?.role === Roles.admin && (
             <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/usuarios')}>
               <List className="mr-2 h-4 w-4" />
               <span>Usuários</span>
@@ -86,11 +84,14 @@ export function Profile({ userData }: IUserDataProps) {
             <span>Suporte</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => navigate('/extrato')}
-            disabled
-          >
+          {userData?.role === Roles.admin && (
+            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/meus-creditos')}>
+              <Coins className="mr-2 h-4 w-4" />
+              <span>Meus créditos</span>
+            </DropdownMenuItem>
+          )}
+
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/extrato')}>
             <Landmark className="mr-2 h-4 w-4" />
             <span>Meu Extrato</span>
           </DropdownMenuItem>

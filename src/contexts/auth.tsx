@@ -37,9 +37,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<IUser | null>(() => authStorage.getUser())
-  const [isBootstrapping, setIsBootstrapping] = useState<boolean>(
-    () => !!authStorage.getToken(),
-  )
+  const [isBootstrapping, setIsBootstrapping] = useState<boolean>(() => !!authStorage.getToken())
   const queryClient = useQueryClient()
 
   const signOut = useCallback(async () => {
