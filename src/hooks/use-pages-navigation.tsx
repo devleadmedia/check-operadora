@@ -4,7 +4,7 @@ import { Check, History, ScrollText, Database, Server } from "lucide-react";
 
 import { Checker } from "@/pages/app/checker";
 import { DataTableApi } from "@/pages/app/historic-api/components/data-table-api";
-import { UnderConstruction } from "@/components/under-construction";
+import { DocumentationApi } from "@/pages/app/documentation-api";
 import { useApiController } from "@/pages/app/historic-api/controller/use-api-controller";
 import { GenerateBase } from "@/pages/app/generate-base";
 
@@ -66,7 +66,7 @@ export function usePageNavigation() {
       icon: <History size={16} />,
     },
     {
-      page: <UnderConstruction title="Documentação" />,
+      page: <DocumentationApi />,
       name: "Documentação",
       route: "/api/documentacao",
       icon: <ScrollText size={16} />,

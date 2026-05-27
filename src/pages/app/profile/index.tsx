@@ -1,5 +1,14 @@
 import { useNavigate } from 'react-router-dom'
-import { LogOut as IconLogOut, User, Settings, List, Headset, Landmark, Coins } from 'lucide-react'
+import {
+  LogOut as IconLogOut,
+  User,
+  Settings,
+  List,
+  Headset,
+  Landmark,
+  Coins,
+  Users,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -77,6 +86,12 @@ export function Profile({ userData }: IUserDataProps) {
             <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/usuarios')}>
               <List className="mr-2 h-4 w-4" />
               <span>Usuários</span>
+            </DropdownMenuItem>
+          )}
+          {userData?.role === Roles.admin && (
+            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/clientes')}>
+              <Users className="mr-2 h-4 w-4" />
+              <span>Clientes</span>
             </DropdownMenuItem>
           )}
           <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/support')}>

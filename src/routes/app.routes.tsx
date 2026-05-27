@@ -7,15 +7,15 @@ import UserProfile from '@/pages/app/profile/components/user-profile'
 import { Footer } from '@/components/footer'
 import { GenerateBase } from '@/pages/app/generate-base'
 import { HistoricApi } from '@/pages/app/historic-api'
+import { DocumentationApi } from '@/pages/app/documentation-api'
 import { SupportPage } from '@/pages/app/support'
 import { StatementPage } from '@/pages/app/statement/statementPage'
 import { MyCredits } from '@/pages/app/my-credits'
 import { Roles } from '@/enums/Roles.enum'
-import { useCredits } from '@/hooks/use-credits'
 import { useAuth } from '@/contexts/auth'
+import { Clients } from '@/pages/app/clients'
 
 export function AppRoutes() {
-  useCredits()
   const { user } = useAuth()
 
   return (
@@ -29,10 +29,11 @@ export function AppRoutes() {
 
             <Route path="/api" element={<HistoricApi />} />
             <Route path="/api/lista" element={<HistoricApi />} />
-            <Route path="/api/documentacao" element={<HistoricApi />} />
+            <Route path="/api/documentacao" element={<DocumentationApi />} />
             <Route path="/api/historico" element={<HistoricApi />} />
 
             {user?.role === Roles.admin && <Route path="/usuarios" element={<User />} />}
+            {user?.role === Roles.admin && <Route path="/clientes" element={<Clients />} />}
             <Route path="/perfil" element={<UserProfile />} />
             <Route path="/checker" element={<Checker />} />
             <Route path="/gerar-base" element={<GenerateBase />} />

@@ -16,6 +16,9 @@ import {
 } from '@/components/ui/select'
 import { StatementCard } from './components/statement-card'
 import { StatementCardSkeleton } from './components/statement-card-skeleton'
+import { DateRangeFilter } from '@/components/date-range'
+import { DateRange } from 'react-day-picker'
+import { isWithinInterval } from 'date-fns'
 
 const PAGE_SIZE = 10
 const SKELETON_COUNT = 6
@@ -23,10 +26,9 @@ const SKELETON_COUNT = 6
 export function StatementPage(): JSX.Element {
   const { statements, isLoadingStatement } = useStatementController()
   const [searchText, setSearchText] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
   const [movementType, setMovementType] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   const filteredStatements = useMemo(() => {
     let filtered = statements.movements
@@ -41,31 +43,31 @@ export function StatementPage(): JSX.Element {
       filtered = filtered.filter((statement) => statement.type === movementType)
     }
 
-    if (startDate) {
-      filtered = filtered.filter((statement) => {
-        const statementDate = new Date(statement.created_at)
-        return statementDate >= new Date(startDate)
-      })
-    }
+    if (dateRange?.from) {
+      const fromDate = dateRange.from
+      const toDate = dateRange.to ?? dateRange.from
 
-    if (endDate) {
+      const startOfDay = new Date(fromDate)
+      startOfDay.setHours(0, 0, 0, 0)
+
+      const endOfDay = new Date(toDate)
+      endOfDay.setHours(23, 59, 59, 999)
+
       filtered = filtered.filter((statement) => {
         const statementDate = new Date(statement.created_at)
-        const end = new Date(endDate)
-        end.setHours(23, 59, 59, 999)
-        return statementDate <= end
+        return isWithinInterval(statementDate, { start: startOfDay, end: endOfDay })
       })
     }
 
     return filtered
-  }, [statements, searchText, startDate, endDate, movementType])
+  }, [statements.movements, searchText, movementType, dateRange])
 
   const totalCount = filteredStatements.length
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchText, startDate, endDate, movementType])
+  }, [searchText, movementType, dateRange])
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -118,24 +120,11 @@ export function StatementPage(): JSX.Element {
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="start-date">Data inicial</Label>
-            <Input
-              id="start-date"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              disabled={isLoadingStatement}
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="end-date">Data final</Label>
-            <Input
-              id="end-date"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              disabled={isLoadingStatement}
+            <Label>Período</Label>
+            <DateRangeFilter
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              className={isLoadingStatement ? 'pointer-events-none opacity-50' : undefined}
             />
           </div>
         </div>

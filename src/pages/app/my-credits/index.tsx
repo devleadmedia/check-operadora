@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { BreadCrumbRoutes } from '@/components/breadcrumb'
 
 import { CreditMovementType } from '@/enums/CreditMovementType.enum'
-import { useCredits } from '@/hooks/use-credits'
+import { useClientCredits } from '@/hooks/use-client-credits'
 import { useStatementController } from '@/pages/app/statement/controller/statement-controller'
 import { IStatementMovement } from '@/interfaces/statement/IStatement.type'
 import { moneyFormat } from '@/utils/money.util'
@@ -57,7 +57,7 @@ function formatRelativeDate(value: string): string {
 
 export function MyCredits() {
   const navigate = useNavigate()
-  const { credits, isLoading: isLoadingCredits } = useCredits()
+  const { credits, isLoading: isLoadingCredits } = useClientCredits()
   const { statements, isLoadingStatement } = useStatementController()
 
   const sortedMovements = useMemo(() => {

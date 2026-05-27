@@ -1,10 +1,7 @@
 import { Roles } from '@/enums/Roles.enum'
 import { IUser } from '@/interfaces/user/IUser.type'
 import { api } from '@/lib/axios'
-import type {
-  IApiPaginatedResponse,
-  IApiResponse,
-} from '@/interfaces/api/IApiResponse.type'
+import type { IApiPaginatedResponse, IApiResponse } from '@/interfaces/api/IApiResponse.type'
 
 export type IUserPaginatedResponse = IApiPaginatedResponse<IUser>
 export type IUserResponse = Partial<IApiResponse<IUser>> & {
@@ -17,6 +14,18 @@ export interface IUserRequest {
   email: string
   password?: string
   role: Roles
+}
+
+export interface IAdminUserCreatePayload {
+  email: string
+  name: string
+  password: string
+  client_id: string
+  role: Roles
+}
+
+export interface IAdminUserUpdatePayload {
+  name: string
 }
 
 export class User {
@@ -45,6 +54,21 @@ export class User {
     }
   }
 
+  async createAdmin(payload: IAdminUserCreatePayload) {
+    const response = await api.post<IUserResponse>('/api/admin/users/', payload)
+    return response.data
+  }
+
+  async updateAdmin(userId: string, payload: IAdminUserUpdatePayload) {
+    const response = await api.put<IUserResponse>(`/api/admin/users/${userId}`, payload)
+    return response.data
+  }
+
+  async deleteAdmin(userId: string) {
+    const response = await api.delete<IUserResponse>(`/api/admin/users/${userId}`)
+    return response.data
+  }
+
   async delete(id: string) {
     try {
       await api.delete<IUserResponse>(`/api/users/`, {
@@ -71,10 +95,7 @@ export class User {
 
   async updated(payload: IUserRequest) {
     try {
-      const response = await api.put<IUserResponse>(
-        `/api/users/${payload?.id}`,
-        payload,
-      )
+      const response = await api.put<IUserResponse>(`/api/users/${payload?.id}`, payload)
 
       return response.data
     } catch (err) {

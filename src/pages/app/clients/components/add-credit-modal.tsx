@@ -12,32 +12,32 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, Plus } from 'lucide-react'
-import { useAddCreditController } from '../controller/use-add-credit-controller'
-import { IUser } from '@/interfaces/user/IUser.type'
+import { Loader2, Wallet } from 'lucide-react'
+import { useAddCreditController } from '@/pages/app/clients/controllers/use-add-credit-controller'
 import { InputMessage } from '@/components/input-message'
+import { IClients } from '@/interfaces/clients/clients'
 
 interface IAddCreditProps {
-  dataUser: IUser
+  dataClient: IClients
   tooltip?: string
 }
 
-export function AddCredit({ dataUser, tooltip }: IAddCreditProps) {
-  const { hookForm, mutate, isOpen, setIsOpen } = useAddCreditController(dataUser)
+export function AddCredit({ dataClient, tooltip }: IAddCreditProps) {
+  const { hookForm, mutate, isOpen, setIsOpen } = useAddCreditController(dataClient)
   const { isLoadingAddCredit } = mutate.addCredit
   const { register, errors, handleSubmit, onSubmit } = hookForm.addCredit
 
   const isAddingCredit = isLoadingAddCredit ? (
     <Loader2 size={16} className="animate-spin" />
   ) : (
-    <Plus size={16} />
+    <Wallet size={16} />
   )
 
   const nameButtonAddCredit = isLoadingAddCredit ? 'Adicionando...' : 'Adicionar créditos'
 
   const triggerButton = (
     <Button variant="outline" size="icon">
-      <Plus size={16} />
+      <Wallet size={16} />
     </Button>
   )
 
@@ -62,13 +62,13 @@ export function AddCredit({ dataUser, tooltip }: IAddCreditProps) {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 gap-4 py-4">
             <div className="grid items-start gap-2">
-              <Label htmlFor="userName" className="text-start">
+              <Label htmlFor="clientName" className="text-start">
                 Usuário:
               </Label>
               <Input
                 type="text"
-                id="userName"
-                value={dataUser?.name || ''}
+                id="clientName"
+                value={dataClient?.name || ''}
                 readOnly
                 className="bg-muted"
               />

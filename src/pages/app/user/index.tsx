@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/table'
 import { EditUser } from '@/pages/app/user/components/edit-user-modal'
 import { CreateUser } from '@/pages/app/user/components/create-user-modal'
-import { AddCredit } from '@/pages/app/user/components/add-credit-modal'
 
 import { BreadCrumbRoutes } from '@/components/breadcrumb'
 import { useUsers } from '@/hooks/user-users'
@@ -20,14 +19,15 @@ import { Button } from '@/components/ui/button'
 import { moneyFormat } from '@/utils/money.util'
 import { useAuth } from '@/contexts/auth'
 import { Roles } from '@/enums/Roles.enum'
-import { useCredits } from '@/hooks/use-credits'
 import { Badge } from '@/components/ui/badge'
+import { useClients } from '@/hooks/use-clients'
+import { findClientById, getCreditsByClientId } from '@/utils/client-credits.util'
 
 export function User() {
   const { listUsers, setPage, pageSize } = useUsers()
   const { user } = useAuth()
-  const { credits, isLoading } = useCredits()
   const { listUsersData, isLoadingListUsers } = listUsers
+  const { data: clients, isLoading: isLoadingClients } = useClients()
 
   const currentPage = listUsersData?.page ?? 1
   const totalCount = listUsersData?.total_items ?? 10
@@ -53,6 +53,7 @@ export function User() {
           <TableRow className="hover:bg-transparent">
             <TableHead>Usuário</TableHead>
             <TableHead>E-mail</TableHead>
+            <TableHead>Cliente</TableHead>
             <TableHead>Créditos</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead>Data/Hora</TableHead>
@@ -60,35 +61,50 @@ export function User() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {listUsersData?.data?.map((item) => (
+          {listUsersData?.data?.map((item) => {
+            const linkedClient = findClientById(item.client_id, clients)
+            const clientCredits = getCreditsByClientId(item.client_id, clients)
+
+            return (
             <TableRow key={item.id}>
               <TableCell className="font-medium">{item.name}</TableCell>
               <TableCell>{item.email}</TableCell>
               <TableCell>
-                {isLoading ? (
-                  <Loader2 className="animate-spin" />
+                {isLoadingClients ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : linkedClient?.name ? (
+                  linkedClient.name
                 ) : (
-                  <Badge variant="default">{moneyFormat(credits)}</Badge>
+                  <span className="text-sm text-muted-foreground">—</span>
                 )}
               </TableCell>
               <TableCell>
-                {item.role === Roles.admin
-                  ? 'Administrador'
-                  : item.role === Roles.manager
-                    ? 'Gerente'
-                    : 'Usuário'}
+                {isLoadingClients ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : clientCredits != null ? (
+                  <Badge variant="default">{moneyFormat(clientCredits)}</Badge>
+                ) : (
+                  <span className="text-sm text-muted-foreground">—</span>
+                )}
               </TableCell>
-              <TableCell>
-                {new Date(String(item.updated_at || item.created_at)).toLocaleString('pt-BR')}
-              </TableCell>
+                <TableCell>
+                  {item.role === Roles.admin
+                    ? 'Administrador'
+                    : item.role === Roles.manager
+                      ? 'Gerente'
+                      : 'Usuário'}
+                </TableCell>
+                <TableCell>
+                  {new Date(String(item.updated_at || item.created_at)).toLocaleString('pt-BR')}
+                </TableCell>
 
-              <TableCell className="text-right flex items-center justify-end gap-4">
-                <AddCredit dataUser={item} tooltip="Adicionar créditos" />
-                <DeleteUser dataUser={item} tooltip="Excluir" />
-                <EditUser dataUser={item} tooltip="Editar usuário" />
-              </TableCell>
-            </TableRow>
-          ))}
+                <TableCell className="text-right flex items-center justify-end gap-4">
+                  <EditUser dataUser={item} tooltip="Editar usuário" />
+                  <DeleteUser dataUser={item} tooltip="Excluir" />
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
 

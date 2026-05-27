@@ -7,14 +7,14 @@ import { usePageNavigation } from '@/hooks/use-pages-navigation'
 import { NavigationHoverCard } from './components/navigation-hover-card'
 import { Badge } from '../ui/badge'
 import { moneyFormat } from '@/utils/money.util'
-import { useCredits } from '@/hooks/use-credits'
+import { useClientCredits } from '@/hooks/use-client-credits'
 import { useAuth } from '@/contexts/auth'
 import { Link } from 'react-router-dom'
 
 export function Header() {
   const { userData, route } = useHeaderController()
   const { isBootstrapping } = useAuth()
-  const { credits, isLoading } = useCredits()
+  const { credits, isLoading } = useClientCredits()
   const { navigationLinks, apiSubmenus, isRouteActive } = usePageNavigation()
   const { navigate } = route
   const { user } = userData
